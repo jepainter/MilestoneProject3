@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Books</h1>
+<p>This is the book review page</p>
+{% for book in books %}
+    {{book.title}}
+    {{book.author_fname}}
+    {{book.author_lname}}
+    {{book.category_id}}
+    {{book.review}}
+    {{book.upvotes}}
+    {{book.downvotes}}
+{% endfor %}
+{% endblock %}
