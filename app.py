@@ -114,6 +114,14 @@ def insert_category():
     categories.insert_one(request.form.to_dict())
     return redirect(url_for("get_categories"))
 
+@app.route("/edit_category/<category_id>")
+def edit_category(category_id):
+    """
+    Function to load form for a category to be changed and render to html
+    """
+    the_category = mongo.db.categories.find_one({"_id": ObjectId(category_id)})
+    return render_template("editcategory.html", category=the_category)
+
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),
             port=int(os.environ.get("PORT")),
