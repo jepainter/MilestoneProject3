@@ -18,23 +18,36 @@ mongo = PyMongo(app)
 @app.route("/")
 def home_screen():
     """
-    Function for landing page
+    Function for rendering landing page
     """
     return render_template("index.html")
 
 @app.route("/get_books")
 def get_books():
     """
-    Function to fetch books and display to html
+    Function to fetch books from database and render to html
     """
     return render_template("books.html", books=mongo.db.books.find())
 
 @app.route("/add_book")
 def add_book():
     """
-    Function to add a book and review to the database and render to html
+    Function to load form for a book review and render to html
     """
     return render_template("addbook.html", categories=mongo.db.categories.find())
+
+@app.route("/insert_book_review", methods=["POST"])
+def insert_book_review():
+    """
+    Function to insert a book review into the database
+    """
+    books = mongo.db.books
+    books.insert_one(request.form.to_dict())
+    """
+    TO DO: add validation of input/required fields
+    """
+    return redirect(url_for("get_books"))
+    
 
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),
