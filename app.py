@@ -22,6 +22,10 @@ def home_screen():
     """
     return render_template("index.html")
 
+
+"""
+Management (CRUD) of books collection in database
+"""
 @app.route("/get_books")
 def get_books():
     """
@@ -98,6 +102,10 @@ def get_categories():
     """
     return render_template("categories.html", categories=mongo.db.categories.find())
 
+
+"""
+Management (CRUD) of categories collection in database
+"""
 @app.route("/add_category")
 def add_category():
     """
@@ -141,6 +149,17 @@ def delete_category(category_id):
     """
     mongo.db.categories.remove({"_id" : ObjectId(category_id)})
     return redirect(url_for("get_categories"))
+
+
+"""
+Management (CRUD) of users collection in database
+"""
+@app.route("/get_users")
+def get_users():
+    """
+    Function to fetch users from database and render to html
+    """
+    return render_template("users.html", users=mongo.db.users.find())
 
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),
