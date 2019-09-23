@@ -34,8 +34,7 @@ def add_book():
     """
     Function to add a book and review to the database and render to html
     """
-    return render_template("addbook.html", books=mongo.db.books.find())
-
+    return render_template("addbook.html", categories=mongo.db.categories.find())
 
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),
