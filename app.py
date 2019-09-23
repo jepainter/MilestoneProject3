@@ -65,7 +65,7 @@ def edit_book(book_id):
 @app.route("/update_book/<book_id>", methods=["POST"])
 def update_book(book_id):
     """
-    Function to update database with revised information
+    Function to update database with revised book review information
     """
     
     """
@@ -121,6 +121,18 @@ def edit_category(category_id):
     """
     the_category = mongo.db.categories.find_one({"_id": ObjectId(category_id)})
     return render_template("editcategory.html", category=the_category)
+
+@app.route("/update_category/<category_id>", methods=["POST"])
+def update_category(category_id):
+    """
+    Function to update database with revised category information
+    """
+    categories = mongo.db.categories
+    categories.update({"_id": ObjectId(category_id)},
+    {
+        "category_name" : request.form.get("category_name")
+    })
+    return redirect(url_for("get_categories"))
 
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),

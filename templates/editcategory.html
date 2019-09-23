@@ -8,7 +8,7 @@
 
 <div class="row justify-content-around">
     <div class="col-10">
-        <form action="" method="POST">
+        <form action="{{ url_for('update_category', category_id=category._id) }}" method="POST">
             <legend>Edit a category</legend>
             <div class="form-group">
                 <label class="col-form-label" for="category_name">Category:</label>
