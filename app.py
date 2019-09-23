@@ -36,7 +36,7 @@ def add_book():
     """
     return render_template("addbook.html", categories=mongo.db.categories.find())
 
-@app.route("/insert_book_review", methods=["POST"])
+@app.route("/insert_book", methods=["POST"])
 def insert_book_review():
     """
     Function to insert a book review into the database
@@ -47,7 +47,41 @@ def insert_book_review():
     TO DO: add validation of input/required fields
     """
     return redirect(url_for("get_books"))
+
+@app.route("/edit_book/<book_id>")
+def edit_book(book_id):
+    """
+    Function to load form for a book review and render to html
+    """
     
+    """
+    TO DO: add functionality to only edit book review if same poster
+    """
+    
+    the_book = mongo.db.books.find_one({"_id": ObjectId(book_id)})
+    all_categories = mongo.db.categories.find()
+    return render_template("editbook.html", book=the_book, categories=all_categories)
+
+@app.route("/update_book/<book_id>", methods=["POST"])
+def update_book(book_id):
+    """
+    Function to update database with revised information
+    """
+    
+    """
+    TO DO: add additional items for complete record
+    """
+    
+    books = mongo.db.books
+    books.update({"_id": ObjectId(book_id)},
+    {
+        "title" : request.form.get("title"),
+        "author_fname" : request.form.get("author_fname"),
+        "author_lname" : request.form.get("author_lname"),
+        "categoryid" : request.form.get("categoryid"),
+        "review" : request.form.get("review")
+    })
+    return redirect(url_for("get_books"))
 
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),
