@@ -105,6 +105,15 @@ def add_category():
     """
     return render_template("addcategory.html")
 
+@app.route("/insert_category", methods=["POST"])
+def insert_category():
+    """
+    Function to insert a category into the database
+    """
+    categories = mongo.db.categories
+    categories.insert_one(request.form.to_dict())
+    return redirect(url_for("get_categories"))
+
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),
             port=int(os.environ.get("PORT")),
