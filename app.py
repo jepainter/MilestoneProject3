@@ -161,6 +161,13 @@ def get_users():
     """
     return render_template("users.html", users=mongo.db.users.find())
 
+@app.route("/add_user")
+def add_user():
+    """
+    Function to load form for user registration and render to html
+    """
+    return render_template("adduser.html")
+
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),
             port=int(os.environ.get("PORT")),
