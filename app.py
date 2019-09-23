@@ -98,6 +98,12 @@ def get_categories():
     """
     return render_template("categories.html", categories=mongo.db.categories.find())
 
+@app.route("/add_category")
+def add_category():
+    """
+    Function to load form for adding category and render to html
+    """
+    return render_template("addcategory.html")
 
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),
