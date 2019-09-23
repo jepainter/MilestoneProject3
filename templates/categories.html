@@ -1,0 +1,19 @@
+{% extends "base.html" %} {% block content %}
+<div class="row justify-content-around">
+    <div class="col-10">
+        <h1>Categories</h1>
+        <p>This is the categories page</p>
+    </div>
+</div>
+
+<div class="row justify-content-around">
+    <div class="col-10">
+        {% for category in categories %}
+        <div class="card">
+            <label>{{ category.category_name.capitalize() }}</label>
+            <a href="">Edit</a><a href="">Delete</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
