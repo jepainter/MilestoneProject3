@@ -1,0 +1,41 @@
+{% extends "base.html" %} {% block content %}
+<h1>Add Book Review</h1>
+<p>This is the add book review page</p>
+
+<div class="row justify-content-around">
+    <div class="col-10">
+        {% for book in books %}
+        <div class="card">
+            <div class="card-header" id="headingOne">
+                <h2 class="mb-0">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            {{book.title}} - {{book.author_fname}} {{book.author_lname}}
+                        </button>
+                </h2>
+            </div>
+
+            <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                <div class="card-body">
+                    <p>Review: {{book.review}}</p>
+                    <p>Reviewed by: {{book.userid}}</p>
+                    <p>Upvotes: {{book.upvotes}} Downvotes: {{book.downvotes}}</p>
+                    <button>Edit</button><button>Delete</button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="row justify-content-around">
+    <div class="col-10">
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptates vitae aliquid, impedit dignissimos facere voluptate. Omnis vitae, quaerat libero blanditiis culpa cumque quas consequuntur ad soluta. Tempora obcaecati, ex incidunt a reiciendis
+            expedita eaque id facere molestiae nesciunt architecto commodi maiores quam. Earum a libero officiis natus temporibus blanditiis ut, dolores distinctio esse et eligendi corporis eos iste. Perspiciatis itaque, vero maxime fugit excepturi perferendis
+            nam obcaecati, possimus cum. Cumque ipsum laudantium unde possimus animi. Dolorum excepturi, doloremque provident. Quos, error provident saepe ducimus dolores quibusdam quo cupiditate magnam quod eius, tempora vel quas beatae nisi amet voluptas
+            ratione, deleniti officia debitis, et. Dolore et perferendis quas praesentium doloribus velit reprehenderit voluptatem laudantium atque illo! Sunt voluptas repellat at impedit delectus nostrum soluta magnam sequi. Iste ab dicta porro sequi
+            nostrum assumenda aperiam dolor quas mollitia enim dolores molestiae asperiores doloremque labore explicabo, nisi hic repudiandae itaque. Voluptas, asperiores officiis sint doloribus commodi, rerum tenetur labore architecto perspiciatis impedit
+            blanditiis consequatur ullam, veritatis nisi necessitatibus aliquam deserunt quam ducimus, at tempora deleniti saepe porro cumque! Architecto neque officiis modi dolor deserunt dignissimos, praesentium voluptas, nulla ducimus odio a! Inventore
+            blanditiis optio ea ratione a cum maiores aliquam vel nobis neque?</p>
+    </div>
+</div>
+{% endblock %}
