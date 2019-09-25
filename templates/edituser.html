@@ -1,0 +1,59 @@
+{% extends "base.html" %} {% block content %}
+<div class="row justify-content-around">
+    <div class="col-10">
+        <h1>Edit User</h1>
+        <p>This is the edit user page</p>
+    </div>
+</div>
+
+<div class="row justify-content-around">
+    <div class="col-10">
+        <form action="" method="POST">
+            <legend>Edit a user</legend>
+            <div class="form-group">
+                <label class="col-form-label" for="fname">First Name:</label>
+                <input type="text" class="form-control" placeholder="Enter your first name..." name="fname" id="fname" value="{{ user.fname }}">
+            </div>
+            
+            <div class="form-group">
+                <label class="col-form-label" for="lname">Surname:</label>
+                <input type="text" class="form-control" placeholder="Enter your surname..." name="lname" id="lname" value="{{ user.lname }}">
+            </div>
+            
+            <div class="form-group">
+                <label class="col-form-label" for="email">Email:</label>
+                <input type="email" class="form-control" placeholder="Enter your email address (jsmith@example.com)..." name="email" id="email" value="{{ user.email }}">
+            </div>
+            
+            <div class="form-group">
+                <label class="col-form-label" for="phone">Phone:</label>
+                <input type="text" class="form-control" placeholder="Enter your phone number..." name="phone" id="phone" value="{{ user.phone }}">
+            </div>
+            
+            <div class="form-group">
+                <label class="col-form-label" for="username">Username:</label>
+                <input type="text" class="form-control" placeholder="Enter your username..." name="username" id="username" value="{{ user.username }}">
+            </div>
+            
+            <div class="form-group">
+                <label class="col-form-label" for="password">Password:</label>
+                <input type="text" class="form-control" placeholder="Enter your password..." name="password" id="password" value="{{ user.password }}">
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Update User</button>
+        </form>
+    </div>
+</div>
+
+<div class="row justify-content-around">
+    <div class="col-10">
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptates vitae aliquid, impedit dignissimos facere voluptate. Omnis vitae, quaerat libero blanditiis culpa cumque quas consequuntur ad soluta. Tempora obcaecati, ex incidunt a reiciendis
+            expedita eaque id facere molestiae nesciunt architecto commodi maiores quam. Earum a libero officiis natus temporibus blanditiis ut, dolores distinctio esse et eligendi corporis eos iste. Perspiciatis itaque, vero maxime fugit excepturi perferendis
+            nam obcaecati, possimus cum. Cumque ipsum laudantium unde possimus animi. Dolorum excepturi, doloremque provident. Quos, error provident saepe ducimus dolores quibusdam quo cupiditate magnam quod eius, tempora vel quas beatae nisi amet voluptas
+            ratione, deleniti officia debitis, et. Dolore et perferendis quas praesentium doloribus velit reprehenderit voluptatem laudantium atque illo! Sunt voluptas repellat at impedit delectus nostrum soluta magnam sequi. Iste ab dicta porro sequi
+            nostrum assumenda aperiam dolor quas mollitia enim dolores molestiae asperiores doloremque labore explicabo, nisi hic repudiandae itaque. Voluptas, asperiores officiis sint doloribus commodi, rerum tenetur labore architecto perspiciatis impedit
+            blanditiis consequatur ullam, veritatis nisi necessitatibus aliquam deserunt quam ducimus, at tempora deleniti saepe porro cumque! Architecto neque officiis modi dolor deserunt dignissimos, praesentium voluptas, nulla ducimus odio a! Inventore
+            blanditiis optio ea ratione a cum maiores aliquam vel nobis neque?</p>
+    </div>
+</div>
+{% endblock %}
