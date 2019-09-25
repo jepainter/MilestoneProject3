@@ -14,15 +14,45 @@ body {
 
 body:after {
     content: "";
-    position: fixed;
-    /* stretch a fixed position to the whole screen */
+    position: fixed; /* stretch a fixed position to the whole screen */
     top: 0;
-    height: 100vh;
-    /* fix for mobile browser address bar appearing disappearing */
+    height: 100vh; /* fix for mobile browser address bar appearing disappearing */
     left: 0;
     right: 0;
-    z-index: -2;
-    /* needed to keep in the background */
+    z-index: -2; /* needed to keep in the background */
     background: url("../images/librarydark.jpg") center center;
     background-size: cover;
+}
+
+
+/* Navigation bar styling */
+
+.navbar {
+    padding: 5px;
+}
+
+.navbar-brand img {
+    max-height: 40px;
+}
+
+.navbar-brand-text {
+    vertical-align: middle;
+}
+
+.opaque-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index:-1;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(72,72,72, 0.65);
+}
+
+
+/* Section styling */
+.top-pad {
+    padding-top: 100px;
+    padding-left: 0px;
+    padding-right: 0px;
 }
