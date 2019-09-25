@@ -205,6 +205,14 @@ def update_user(user_id):
     })
     return redirect(url_for("get_users"))
 
+@app.route("/delete_user/<user_id>")
+def delete_user(user_id):
+    """
+    Function to delete a user from the database
+    """
+    mongo.db.users.remove({"_id" : ObjectId(user_id)})
+    return redirect(url_for("get_users"))
+
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),
             port=int(os.environ.get("PORT")),
