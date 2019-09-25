@@ -168,6 +168,18 @@ def add_user():
     """
     return render_template("adduser.html")
 
+@app.route("/insert_user", methods=["POST"])
+def insert_user():
+    """
+    Function to insert a new user into the database
+    """
+    users = mongo.db.users
+    users.insert_one(request.form.to_dict())
+    """
+    TO DO: add validation of input/required fields
+    """
+    return redirect(url_for("get_users"))
+
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),
             port=int(os.environ.get("PORT")),
