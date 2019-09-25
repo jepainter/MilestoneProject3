@@ -187,6 +187,23 @@ def edit_user(user_id):
     """
     the_user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
     return render_template("edituser.html", user=the_user)
+    
+@app.route("/update_user/<user_id>", methods=["POST"])
+def update_user(user_id):
+    """
+    Function to update database with revised user information
+    """
+    users = mongo.db.users
+    users.update({"_id": ObjectId(user_id)},
+    {
+        "fname" : request.form.get("fname"),
+        "lname" : request.form.get("lname"),
+        "email" : request.form.get("email"),
+        "phone" : request.form.get("phone"),
+        "username" : request.form.get("username"),
+        "password" : request.form.get("password")
+    })
+    return redirect(url_for("get_users"))
 
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),
