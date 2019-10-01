@@ -10,7 +10,6 @@ app = Flask(__name__)
 
 MONGODB_URI = os.getenv("MONGO_URI")
 
-#app.config["MONGO_DBNAME"]
 app.config["MONGO_URI"] = os.getenv("MONGO_URI")
 
 mongo = PyMongo(app)
@@ -31,7 +30,43 @@ def get_books():
     """
     Function to fetch books from database and render to html
     """
-    return render_template("books.html", books=mongo.db.books.find())
+    all_books=mongo.db.books.find()
+    merged_result = {}
+    
+    #Populate new dictionary with results from db retrieval
+    for book in all_books:
+        for key, value in book.items():
+            if key == "_id":
+                merged_result[str(value)] = book
+    
+    print(merged_result)
+    print("space")
+    
+    #Update new dictionary with category and user information
+    for book_id, book_detail in merged_result.items():
+        for key, value in book_detail.items():
+            if key == "category_id":
+                the_category=mongo.db.categories.find_one({"_id": ObjectId(value)})
+                merged_result[book_id]["category_name"] = merged_result[book_id].pop("category_id")
+                for k, v in the_category.items():
+                    if k == "category_name":
+                        merged_result[book_id]["category_name"] = the_category[k]    
+            elif key == "user_id":
+                the_user=mongo.db.users.find_one({"_id": ObjectId(value)})
+                merged_result[book_id]["username"] = merged_result[book_id].pop("user_id")
+                for k, v in the_user.items():
+                    if k == "username":
+                        merged_result[book_id]["username"] = the_user[k]
+            else:
+                pass
+        print("next")
+    print("end")
+    
+    print(merged_result)
+    
+    all_books.rewind()
+    print(all_books)
+    return render_template("books.html", books=merged_result)
 
 @app.route("/add_book")
 def add_book():
@@ -82,7 +117,7 @@ def update_book(book_id):
         "title" : request.form.get("title"),
         "author_fname" : request.form.get("author_fname"),
         "author_lname" : request.form.get("author_lname"),
-        "categoryid" : request.form.get("categoryid"),
+        "category_id" : request.form.get("category_id"),
         "review" : request.form.get("review")
     })
     return redirect(url_for("get_books"))
@@ -150,6 +185,8 @@ def delete_category(category_id):
     mongo.db.categories.remove({"_id" : ObjectId(category_id)})
     return redirect(url_for("get_categories"))
 
+
+    
 
 """
 Management (CRUD) of users collection in database
