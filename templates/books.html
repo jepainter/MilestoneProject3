@@ -1,38 +1,35 @@
 {% extends "base.html" %} {% block content %}
 <div class="row justify-content-around">
     <div class="col-10">
-        <h1>Books</h1>
+        <h1 class="fnt-clr-red">Books</h1>
         <p>This is the book review page</p>
     </div>
 </div>
 
-<div class="accordion" id="accordionExample">
-    <div class="row justify-content-around">
-        <div class="col-10">
-            {% for book in books %}
-            <div class="card">
-                <div class="card-header" id="{{ book.title }}">
-                    <h2 class="mb-0">
-                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                            {{ book.title }} - {{ book.author_fname.capitalize() }} {{ book.author_lname.capitalize() }}
-                        </button>
-                    </h2>
-                </div>
-
-                <div id="collapseOne" class="collapse" aria-labelledby="{{ book.title }}" data-parent="#accordionExample">
-                    <div class="card-body">
-                        <p>Review: {{ book.review.capitalize() }}</p>
-                        <p>Reviewed by: {{ book.userid }}</p>
-                        <p>Upvotes: {{ book.upvotes }} Downvotes: {{ book.downvotes }}</p>
-                        <a href="{{ url_for('edit_book', book_id=book._id) }}">Edit Book</a>
-                        <a href="{{ url_for('delete_book', book_id=book._id) }}">Delete Book</a>
-                    </div>
-                </div>
+<div class="row justify-content-around">
+   <div class="card-deck">
+        {% for book_id, book_detail in books.items() %}
+        <div class="col-10 col-md-5 col-lg-3">
+        <div class="card">
+            <h3 class="card-header">{{ books[book_id]["title"] }}</h3>
+            <div class="card-body">
+                <h6 class="card-title">Author: </h5>
+                    <h5 class="card-subtitle text-muted">{{ books[book_id]["author_fname"] }} {{ books[book_id]["author_lname"] }}</h6>
             </div>
-            {% endfor %}
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">Category: {{ books[book_id]["category_name"].title() }}</li>
+                <li class="list-group-item">Comments: </li>
+                <li class="list-group-item">Votes: {{ books[book_id]["up_votes"] }} {{ books[book_id]["down_votes"] }}</li>
+            </ul>
+            <div class="card-footer text-muted">
+                Date Added: {{ books[book_id]["date_added"] }}
+            </div>
         </div>
+        </div>
+        {% endfor %}
     </div>
 </div>
+
 
 <div class="row justify-content-around">
     <div class="col-10">
