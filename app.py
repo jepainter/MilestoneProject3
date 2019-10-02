@@ -196,9 +196,27 @@ def add_comment(book_id):
     """
     Function to load form for adding comment and render to html
     """
-    the_book = mongo.db.books.find_one({"_id": ObjectId(book_id)})
-    
+    the_book = mongo.db.books.find_one({"_id" : ObjectId(book_id)})
     return render_template("addcomment.html", book=the_book)
+
+@app.route("/insert_comment/<book_id>", methods=["POST"])
+def insert_comment(book_id):
+    """
+    Function to insert a comment into the database
+    """
+    
+    comment = request.form.to_dict()
+    comment["book_id"] = book_id
+    
+    
+    comments = mongo.db.comments
+    comments.insert_one(comment)
+    
+    the_book = mongo.db.books.find_one({"_id": ObjectId(book_id)})
+    all_categories = mongo.db.categories.find()
+    all_users = mongo.db.users.find()
+    
+    return render_template("book.html", book=the_book, categories=all_categories, users=all_users)
 
 
 """
