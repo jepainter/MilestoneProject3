@@ -39,9 +39,6 @@ def get_books():
             if key == "_id":
                 merged_result[str(value)] = book
     
-    print(merged_result)
-    print("space")
-    
     #Update new dictionary with category and user information
     for book_id, book_detail in merged_result.items():
         for key, value in book_detail.items():
@@ -59,14 +56,19 @@ def get_books():
                         merged_result[book_id]["username"] = the_user[k]
             else:
                 pass
-        print("next")
-    print("end")
     
-    print(merged_result)
-    
-    all_books.rewind()
-    print(all_books)
     return render_template("books.html", books=merged_result)
+
+@app.route("/get_book/<book_id>")
+def get_book(book_id):
+    """
+    Function to get individual book details and render to html
+    """
+    the_book = mongo.db.books.find_one({"_id": ObjectId(book_id)})
+    all_categories = mongo.db.categories.find()
+    all_users = mongo.db.users.find()
+    
+    return render_template("book.html", book=the_book, categories=all_categories, users=all_users)
 
 @app.route("/add_book")
 def add_book():
@@ -186,7 +188,18 @@ def delete_category(category_id):
     return redirect(url_for("get_categories"))
 
 
+"""
+Management (CRUD) of comments collection in database
+"""    
+@app.route("/add_comment/<book_id>")
+def add_comment(book_id):
+    """
+    Function to load form for adding comment and render to html
+    """
+    the_book = mongo.db.books.find_one({"_id": ObjectId(book_id)})
     
+    return render_template("addcomment.html", book=the_book)
+
 
 """
 Management (CRUD) of users collection in database
