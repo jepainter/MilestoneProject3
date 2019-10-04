@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-    <!-- Stylesheets for basic (Bootswwatch Lux), Font Awesome, Favicon and detailed styling  -->
+    <!-- Stylesheets for basic (Bootstrap and Bootswwatch Lux), Font Awesome, Favicon and detailed styling  -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.3.1/lux/bootstrap.min.css" integrity="sha384-hVpXlpdRmJ+uXGwD5W6HZMnR9ENcKVRn855pPbuI/mwPIEKAuKgTKgGksVGmlAvt" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" integrity="sha256-/sdxenK1NDowSNuphgwjv8wSosSNZB0t5koXqd7XqOI=" crossorigin="anonymous" />
@@ -23,7 +23,7 @@
     <!-- Navbar for navigation of site -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <a class="navbar-brand" href="{{ url_for('home_screen') }}">
-        <img src="static/images/ubrlogoinitials.png" alt="Ultimate Book Review Logo">
+        <img src="{{ url_for('static', filename='images/ubrlogoonly.png') }}" alt="Ultimate Book Review Logo">
             <span class="navbar-brand-text">Ultimate Book Review</span>
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,13 +48,62 @@
         </div>
     </nav>
 
-    <!-- Section for display of rendering templates as needed -->
+    <!-- Section for opaque overlay -->
     <section class="container-fluid top-pad">
-        <div class="opaque-overlay">
-        </div>
-        {% block content %} {% endblock %}
+        <div class="opaque-overlay"></div>
     </section>
-
+    
+    <!-- Section for inserting block content from pages using Flask -->
+    {% block content %} {% endblock %}
+    
+    <!-- Footer for website -->
+    <footer class="container-fluid footer-position">
+        <div class="row">
+            <div class="col-sm-4">
+                <h5>Developer</h5>
+                <p>This site has been created by Jonathan Painter. View the README here:
+                    <a href="#" target="_blank" aria-label="Link to readme" rel="noopener" class="footer-links">
+                        <i class="fas fa-download readme-link" aria-hidden="true"></i>
+                        <span class="sr-only">Readme Link.</span>
+                    </a>
+                </p>
+            </div>
+            <div class="col-sm-4">
+                <h5>Disclaimer</h5>
+                <p>This site is created for education purposes only.</p>
+            </div>
+            <div class="col-sm-4">
+                <h5>Social Media</h5>
+                <p>Folow us on social media:</p>
+                <ul class="list-inline footer-links">
+                    <li class="list-inline-item">
+                        <a target="_blank" aria-label="Link to Facebook" rel="noopener" href="https://www.facebook.com/">
+                            <i class="fab fa-facebook" aria-hidden="true"></i>
+                            <span class="sr-only">Facebook</span>
+                    </a>
+                    </li>
+                    <li class="list-inline-item">
+                        <a target="_blank" aria-label="Link to Twitter" rel="noopener" href="https://twitter.com/">
+                            <i class="fab fa-twitter" aria-hidden="true"></i>
+                            <span class="sr-only">Twitter</span>
+                        </a>
+                    </li>
+                    <li class="list-inline-item">
+                        <a target="_blank" aria-label="Link to YouTube" rel="noopener" href="https://www.youtube.com/">
+                            <i class="fab fa-youtube" aria-hidden="true"></i>
+                            <span class="sr-only">YouTube</span>
+                        </a>
+                    </li>
+                    <li class="list-inline-item">
+                        <a target="_blank" aria-label="Link to Instagram" rel="noopener" href="https://instagram.com/">
+                            <i class="fab fa-instagram" aria-hidden="true"></i>
+                            <span class="sr-only">Instagram</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </footer>
 
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
