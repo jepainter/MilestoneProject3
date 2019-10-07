@@ -52,7 +52,7 @@ body:after {
 }
 
 .bottom-margin {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 .no-border {
@@ -84,9 +84,29 @@ body:after {
     background-color: #3a3737f2 !important;
 }
 
+.bg-clr-dark-red {
+    background-color: #670707c9;
+}
+
+.bg-clr-darkest-red {
+    background-color: #562c2ccc;
+}
+
+.bg-clr-white {
+    background-color: #ffffffc4;
+}
+
+.bg-clr-dark-red:hover {
+    background-color: #670707;
+}
+
+.bg-clr-white:hover {
+    background-color: #f5f5f5;
+}
+
 /* Link management */
 
-.no-text-decor {
+.no-text-decor:hover {
     text-decoration: none;
 }
 
@@ -95,6 +115,7 @@ body:after {
     max-width: 100%;
     max-height: 200px;
     align-self: center;
+    margin: 10px;
 }
 
 .book-img {
