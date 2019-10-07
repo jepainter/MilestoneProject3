@@ -1,0 +1,86 @@
+{% extends "base.html" %} {% block content %}
+<section class="container-fluid"> 
+<div class="row justify-content-around bottom-margin">
+    <div class="col-10">
+        <h1 class="fnt-clr-red">Book Review</h1>
+    </div>
+</div>
+
+<div class="row align-items-center justify-content-around">
+    <div class="col-10">
+        <div class="row align-items-center justify-content-around">
+            <div class="col-12 col-md-5 col-lg-4">
+                <div class="card bottom-margin bg-clr-transparent no-border">
+                    <img class="book-img" src="{{ book.cover_url }}" alt="Image of {{ book.title.title() }}"></img>
+                </div>
+            </div>
+            <div class="col-12 col-md-7 col-lg-8">
+                <div class="card bottom-margin">
+                    <h3 class="card-header">{{ book.title.title() }}</h3>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><h6>Author: </h6>{{ book.author_fname.title() }} {{ book.author_lname.title() }}</li>
+                        {% for category in categories %} {% if category._id|string() == book.category_id|string() %}
+                        <li class="list-group-item"><h6>Category: </h6>{{ category.category_name.title() }}</li>
+                        {% endif %} {% endfor %}
+                        <li class="list-group-item"><h6>Date Added: </h6>{{ book.date_added }}</li>
+                        <li class="list-group-item"><h6>Votes: </h6><i class="fas fa-arrow-alt-circle-up"></i> {{ book.up_votes }} | <i class="fas fa-arrow-alt-circle-down"></i> {{ book.down_votes }} </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-around">
+    <div class="col-10 text-center">
+        <a class="btn btn-info bottom-margin" href="{{ url_for('edit_book', book_id=book._id) }}" role="button">Edit Book</a>
+        <a class="btn btn-danger bottom-margin" href="{{ url_for('delete_book', book_id=book._id) }}" role="button">Delete Book</a>
+        <a class="btn btn-success bottom-margin" href="#" role="button">Buy Book</a>
+    </div>
+</div>
+
+<div class="row justify-content-around">
+    <div class="col-10">
+        <div class="card bottom-margin">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><h6>Review: </h6>{{ book.review.capitalize() }}</li>
+                {% for user in users %} {% if user._id|string() == book.user_id|string() %}
+                    <li class="list-group-item"><h6>Reviewed By: </h6>{{ user.username }}</li>
+                {% endif %} {% endfor %}
+                <li class="list-group-item">
+                    <a class="btn btn-info" href="#" role="button">Edit Review</a>
+                    <a class="btn btn-danger" href="#" role="button">Delete Review</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-around">
+    <div class="col-10">
+        <div class="card bottom-margin">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><h6>Comments: </h6></li>
+                <li class="list-group-item">
+                    <a class="btn btn-info" href="{{ url_for('add_comment', book_id=book._id) }}" role="button">Add Comment</a>
+                </li>
+                {% for comment in comments %}
+                    {% if comment.book_id == book._id|string() %}
+                    <li class="list-group-item">
+                       <div class="row justify-content-around">
+                       <div class="col-12 col-md-10">
+                            <p>{{ comment.book_id }} - {{ comment.comment }}</p>
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <a class="btn btn-danger" href="#" role="button">Delete</a>
+                        </div>
+                        </div>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+</section>
+{% endblock %}
