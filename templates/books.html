@@ -1,16 +1,20 @@
 {% extends "base.html" %} {% block content %}
-<div class="row justify-content-around">
+<section class="container-fluid"> 
+<div class="row justify-content-around bottom-margin">
     <div class="col-10">
         <h1 class="fnt-clr-red">Books</h1>
-        <p>This is the book review page</p>
     </div>
 </div>
 
 <div class="row justify-content-around">
-   <div class="card-deck">
+    <div class="col-10">
+       <div class="row align-items-top justify-content-around">
         {% for book_id, book_detail in books.items() %}
-        <div class="col-10 col-md-5 col-lg-3">
-        <div class="card">
+        <div class="col-12 col-md-6 col-lg-4 bottom-margin">
+        <div class="card card-bg-clr">
+            
+                <img src="{{ books[book_id]['cover_url'] }}" class="crd-img" alt="Image for {{ books[book_id]['title'].title() }}"/>
+            
             <h3 class="card-header">{{ books[book_id]["title"] }}</h3>
             <div class="card-body">
                 <h6 class="card-title">Author: </h5>
@@ -19,27 +23,18 @@
             <ul class="list-group list-group-flush">
                 <li class="list-group-item">Category: {{ books[book_id]["category_name"].title() }}</li>
                 <li class="list-group-item">Comments: </li>
-                <li class="list-group-item">Votes: {{ books[book_id]["up_votes"] }} {{ books[book_id]["down_votes"] }}</li>
+                <li class="list-group-item">Votes: <i class="fas fa-arrow-alt-circle-up"></i> {{ books[book_id]["up_votes"] }} | <i class="fas fa-arrow-alt-circle-down"></i> {{ books[book_id]["down_votes"] }} </li>
             </ul>
+            <p>{{ books[book_id]["_id"] }}</p>
+            <a href="{{ url_for('get_book', book_id=books[book_id]['_id']) }}">Get book</a>
             <div class="card-footer text-muted">
                 Date Added: {{ books[book_id]["date_added"] }}
             </div>
         </div>
         </div>
         {% endfor %}
+        </div>
     </div>
 </div>
-
-
-<div class="row justify-content-around">
-    <div class="col-10">
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptates vitae aliquid, impedit dignissimos facere voluptate. Omnis vitae, quaerat libero blanditiis culpa cumque quas consequuntur ad soluta. Tempora obcaecati, ex incidunt a reiciendis
-            expedita eaque id facere molestiae nesciunt architecto commodi maiores quam. Earum a libero officiis natus temporibus blanditiis ut, dolores distinctio esse et eligendi corporis eos iste. Perspiciatis itaque, vero maxime fugit excepturi perferendis
-            nam obcaecati, possimus cum. Cumque ipsum laudantium unde possimus animi. Dolorum excepturi, doloremque provident. Quos, error provident saepe ducimus dolores quibusdam quo cupiditate magnam quod eius, tempora vel quas beatae nisi amet voluptas
-            ratione, deleniti officia debitis, et. Dolore et perferendis quas praesentium doloribus velit reprehenderit voluptatem laudantium atque illo! Sunt voluptas repellat at impedit delectus nostrum soluta magnam sequi. Iste ab dicta porro sequi
-            nostrum assumenda aperiam dolor quas mollitia enim dolores molestiae asperiores doloremque labore explicabo, nisi hic repudiandae itaque. Voluptas, asperiores officiis sint doloribus commodi, rerum tenetur labore architecto perspiciatis impedit
-            blanditiis consequatur ullam, veritatis nisi necessitatibus aliquam deserunt quam ducimus, at tempora deleniti saepe porro cumque! Architecto neque officiis modi dolor deserunt dignissimos, praesentium voluptas, nulla ducimus odio a! Inventore
-            blanditiis optio ea ratione a cum maiores aliquam vel nobis neque?</p>
-    </div>
-</div>
+</section>
 {% endblock %}
