@@ -76,6 +76,10 @@ body:after {
     color: #ef302f;
 }
 
+.fnt-clr-white {
+    color: white;
+}
+
 .bg-clr-transparent{
     background-color: #ffffff00 !important;
 }
