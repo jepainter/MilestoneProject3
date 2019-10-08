@@ -25,15 +25,21 @@ def home_screen():
 """
 Management (CRUD) of books collection in database
 """
-@app.route("/get_books/", defaults={"category_id": None}, methods=["GET","POST"])
+@app.route("/get_books/", defaults={"category_id": ""}, methods=["GET","POST"])
 @app.route("/get_books/<category_id>", methods=["GET","POST"])
 def get_books(category_id):
     """
     Function to fetch books from database and render to html
     """
-    category=category_id
-    books=mongo.db.books.find()
-    merged_result = {}
+    merged_result={}
+    
+    if category_id != "":
+        books=mongo.db.books.find({"category_id": category_id})
+        print("specific category given")
+    elif category_id == "":
+        books=mongo.db.books.find()
+        print("no category given")
+    
     
     #Populate new dictionary with results from db retrieval
     for book in books:
