@@ -14,27 +14,29 @@ app.config["MONGO_URI"] = os.getenv("MONGO_URI")
 
 mongo = PyMongo(app)
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 def home_screen():
     """
     Function for rendering landing page
     """
-    return render_template("index.html")
+    return render_template("index.html", categories=mongo.db.categories.find())
 
 
 """
 Management (CRUD) of books collection in database
 """
-@app.route("/get_books")
-def get_books():
+@app.route("/get_books/", defaults={"category_id": None}, methods=["GET","POST"])
+@app.route("/get_books/<category_id>", methods=["GET","POST"])
+def get_books(category_id):
     """
     Function to fetch books from database and render to html
     """
-    all_books=mongo.db.books.find()
+    category=category_id
+    books=mongo.db.books.find()
     merged_result = {}
     
     #Populate new dictionary with results from db retrieval
-    for book in all_books:
+    for book in books:
         for key, value in book.items():
             if key == "_id":
                 merged_result[str(value)] = book
@@ -67,8 +69,9 @@ def get_book(book_id):
     the_book = mongo.db.books.find_one({"_id": ObjectId(book_id)})
     all_categories = mongo.db.categories.find()
     all_users = mongo.db.users.find()
+    all_comments = mongo.db.comments.find()
     
-    return render_template("book.html", book=the_book, categories=all_categories, users=all_users)
+    return render_template("book.html", book=the_book, categories=all_categories, users=all_users, comments=all_comments)
 
 @app.route("/add_book")
 def add_book():
@@ -132,6 +135,10 @@ def delete_book(book_id):
     mongo.db.books.remove({"_id" : ObjectId(book_id)})
     return redirect(url_for("get_books"))
 
+
+"""
+Management (CRUD) of categories collection in database
+"""
 @app.route("/get_categories")
 def get_categories():
     """
@@ -139,10 +146,6 @@ def get_categories():
     """
     return render_template("categories.html", categories=mongo.db.categories.find())
 
-
-"""
-Management (CRUD) of categories collection in database
-"""
 @app.route("/add_category")
 def add_category():
     """
@@ -208,15 +211,10 @@ def insert_comment(book_id):
     comment = request.form.to_dict()
     comment["book_id"] = book_id
     
-    
     comments = mongo.db.comments
     comments.insert_one(comment)
     
-    the_book = mongo.db.books.find_one({"_id": ObjectId(book_id)})
-    all_categories = mongo.db.categories.find()
-    all_users = mongo.db.users.find()
-    
-    return render_template("book.html", book=the_book, categories=all_categories, users=all_users)
+    return redirect(url_for('get_book', book_id=book_id))
 
 
 """
