@@ -1,0 +1,59 @@
+{% extends "base.html" %} {% block content %}
+<section class="container-fluid"> 
+<div class="row justify-content-around">
+    <div class="col-10">
+        <h1 class="fnt-clr-red">Log In User</h1>
+        <p>This is the user log in page</p>
+    </div>
+</div>
+
+<div class="row justify-content-around">
+    <div class="col-10 bottom-margin">
+        <form action="" method="POST">
+            {{ form.hidden_tag() }}
+            <legend>Log in to website</legend>
+            <div class="form-group">
+                {{ form.email.label(class="col-form-label") }}
+                {% if form.email.errors %}
+                    {{ form.email(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.email.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.email(class="form-control", placeholder="Enter your email address (jsmith@example.com)...") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.password.label(class="col-form-label") }}
+                {% if form.password.errors %}
+                    {{ form.password(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.password.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.password(class="form-control", placeholder="Enter your password...") }}
+                {% endif %}
+            </div>
+            <div class="form-check">
+                {{ form.remember_me(class="form-check-input") }}
+                {{ form.remember_me.label(class="col-form-label") }}
+            </div>
+            <div class="form-group">
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+    </div>
+    <div class="col-10 text-center bottom-margin">
+        <p>
+            If you don't have an existing account yet... 
+        </p>
+        
+        <a class="btn btn-info" href="{{ url_for('add_user') }}" role="button">Register Here!</a>
+    </div>
+</div>
+</section>
+{% endblock %}
