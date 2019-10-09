@@ -9,36 +9,99 @@
 
 <div class="row justify-content-around">
     <div class="col-10 bottom-margin">
-        <form action="{{ url_for('insert_user') }}" method="POST">
+        <form action="" method="POST">
             {{ form.hidden_tag() }}
             <legend>Register as a user</legend>
             <div class="form-group">
                 {{ form.fname.label(class="col-form-label") }}
-                {{ form.fname(class="form-control", placeholder="Enter your first name...") }}
+                {% if form.fname.errors %}
+                    {{ form.fname(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.fname.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.fname(class="form-control", placeholder="Enter your first name...") }}
+                {% endif %}
             </div>
             <div class="form-group">
                 {{ form.lname.label(class="col-form-label") }}
-                {{ form.lname(class="form-control", placeholder="Enter your surname...") }}
+                {% if form.lname.errors %}
+                    {{ form.lname(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.lname.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.lname(class="form-control", placeholder="Enter your surname...") }}
+                {% endif %}
             </div>
             <div class="form-group">
                 {{ form.email.label(class="col-form-label") }}
-                {{ form.email(class="form-control", placeholder="Enter your email address (jsmith@example.com)...") }}
+                {% if form.email.errors %}
+                    {{ form.email(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.email.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.email(class="form-control", placeholder="Enter your email address (jsmith@example.com)...") }}
+                {% endif %}
             </div>
             <div class="form-group">
                 {{ form.phone.label(class="col-form-label") }}
-                {{ form.phone(class="form-control", placeholder="Enter your phone number...") }}
+                {% if form.phone.errors %}
+                    {{ form.phone(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.phone.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.phone(class="form-control", placeholder="Enter your phone number...") }}
+                {% endif %}
             </div>
             <div class="form-group">
                 {{ form.username.label(class="col-form-label") }}
-                {{ form.username(class="form-control", placeholder="Enter your username...") }}
+                {% if form.username.errors %}
+                    {{ form.username(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.username.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.username(class="form-control", placeholder="Enter your username...") }}
+                {% endif %}
             </div>
             <div class="form-group">
                 {{ form.password.label(class="col-form-label") }}
-                {{ form.password(class="form-control", placeholder="Enter your password...") }}
+                {% if form.password.errors %}
+                    {{ form.password(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.password.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.password(class="form-control", placeholder="Enter your password...") }}
+                {% endif %}
             </div>
             <div class="form-group">
                 {{ form.confirm_password.label(class="col-form-label") }}
-                {{ form.confirm_password(class="form-control", placeholder="Confirm your password...") }}
+                {% if form.confirm_password.errors %}
+                    {{ form.confirm_password(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.confirm_password.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.confirm_password(class="form-control", placeholder="Confirm your password...") }}
+                {% endif %}
             </div>
             <div class="form-group">
                 {{ form.submit(class="btn btn-primary") }}
