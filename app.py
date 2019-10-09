@@ -2,7 +2,7 @@
 Imports of packages for functioning of site
 """
 import os
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
 from forms import RegistrationForm, LogInForm
@@ -18,6 +18,7 @@ app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 mongo = PyMongo(app)
 
 @app.route("/", methods=["GET", "POST"])
+@app.route("/home_screen", methods=["GET", "POST"])
 def home_screen():
     """
     Function for rendering landing page
@@ -236,12 +237,27 @@ def get_users():
     """
     return render_template("users.html", users=mongo.db.users.find())
 
-@app.route("/add_user")
+@app.route("/login_user")
+def login_user():
+    """
+    Function to load WTForm for user log in and render to html
+    """
+    form = LogInForm()
+    return render_template("loginuser.html", form=form)
+
+@app.route("/add_user", methods=["GET", "POST"])
 def add_user():
     """
     Function to load WTForm for user registration and render to html
+    
+    Code adapted from Corey Shafer's tutorial found at
+    https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
     """
     form = RegistrationForm()
+    if form.validate_on_submit():
+        flash(f"Account created for {form.username.data}!", "success")
+        print("successful")
+        return redirect(url_for("home_screen"))
     return render_template("adduser.html", form=form)
 
 @app.route("/insert_user", methods=["POST"])
@@ -254,7 +270,7 @@ def insert_user():
     """
     TO DO: add validation of input/required fields
     """
-    return redirect(url_for("get_users"))
+    return redirect(url_for("home_screen"))
 
 @app.route("/edit_user/<user_id>")
 def edit_user(user_id):

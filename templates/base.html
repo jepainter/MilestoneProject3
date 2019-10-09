@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.3.1/lux/bootstrap.min.css" integrity="sha384-hVpXlpdRmJ+uXGwD5W6HZMnR9ENcKVRn855pPbuI/mwPIEKAuKgTKgGksVGmlAvt" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" integrity="sha256-/sdxenK1NDowSNuphgwjv8wSosSNZB0t5koXqd7XqOI=" crossorigin="anonymous" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" type="text/css" />
-    
+
     <!-- Favicon for site -->
     <link rel="shortcut icon" href="{{ url_for('static', filename='icon/ubrfavicon.ico') }}" type="image/x-icon" />
 
@@ -21,44 +21,61 @@
 <body>
 
     <!-- Navbar for navigation of site -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-        <a class="navbar-brand" href="{{ url_for('home_screen') }}">
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+            <a class="navbar-brand" href="{{ url_for('home_screen') }}">
         <img src="{{ url_for('static', filename='images/ubrlogoonly.png') }}" alt="Ultimate Book Review Logo">
             <span class="navbar-brand-text">Ultimate Book Review</span>
         </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
          </button>
 
-        <div class="collapse navbar-collapse" id="navbarColor02">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="{{ url_for('home_screen') }}">Home <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('get_books') }}">Books</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('get_categories') }}">Categories</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('get_users') }}">Users</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
+            <div class="collapse navbar-collapse" id="navbarColor02">
+                <div class="navbar-nav mr-auto">
+                    <a class="nav-item nav-link" href="{{ url_for('home_screen') }}">Home <span class="sr-only">(current)</span></a>
+                    <a class="nav-item nav-link" href="{{ url_for('get_books', category_id='') }}">Books</a>
+                    <a class="nav-item nav-link" href="{{ url_for('get_categories') }}">Categories</a>
+                    <a class="nav-item nav-link" href="{{ url_for('get_users') }}">Users</a>
+                </div>
+                <!-- adapted from https://www.youtube.com/watch?v=QnDWIZuWYW0&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=2 -->
+                <div class="navbar-nav">
+                    <a class="navbar-item nav-link" href="{{ url_for('login_user') }}">Login</a>
+                    <a class="navbar-item nav-link" href="{{ url_for('add_user') }}">Register</a>
+                </div>
+            </div>
+        </nav>
+    </header>
 
     <!-- Section for opaque overlay -->
     <section class="container-fluid top-pad">
         <div class="opaque-overlay"></div>
     </section>
-    
+
     <!-- Section for inserting block content from pages using Flask -->
-    {% block content %} {% endblock %}
+    <!-- Code adapted from Corey Shafer's tutorial found at
+    https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3-->
+    {% with messages = get_flashed_messages(with_categories=true) %} 
+        {% if messages %} 
+            {% for category, message in messages %}
+            <section class="container-fluid top-pad">
+                <div class="row justify-content-around">
+                    <div class="col-10 text-center">
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    </div>
+                </div>
+            </section>
+            {% endfor %} 
+        {% endif %} 
+    {% endwith %} 
     
+    {% block content %} {% endblock %}
+
     <!-- Footer for website -->
-    <footer class="container-fluid footer-position">
-        <div class="row">
+    <footer class="container-fluid footer-position bg-dark">
+        <div class="row  top-margin">
             <div class="col-sm-4">
                 <h5>Developer</h5>
                 <p>This site has been created by Jonathan Painter. View the README here:
