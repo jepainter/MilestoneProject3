@@ -12,7 +12,7 @@ https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUx
 Imports of packages for functioning of forms for the site
 """
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 """
 Form classes for various forms used
@@ -35,4 +35,10 @@ class RegistrationForm(FlaskForm):
                             validators=[DataRequired(), EqualTo("password")])
     submit = SubmitField("Register")
                             
-
+class LogInForm(FlaskForm):
+    email = StringField("Email", 
+                        validators=[DataRequired(), Email()])
+    password = PasswordField("Password", 
+                            validators=[DataRequired(), Length(min=8, max=16)])
+    remember_me = BooleanField("Remember Me")
+    submit = SubmitField("Log In")
