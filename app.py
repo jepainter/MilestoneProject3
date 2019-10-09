@@ -5,7 +5,7 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
-from forms import RegistrationForm, LogInForm
+from forms import RegistrationForm, LogInForm, AddBookForm, AddCategoryForm
 
 app = Flask(__name__)
 
@@ -86,20 +86,24 @@ def get_book(book_id):
 @app.route("/add_book")
 def add_book():
     """
-    Function to load form for a book review and render to html
+    Function to load WTForm for adding book
+    
+    Code adapted from Corey Shafer's tutorial found at
+    https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
     """
-    return render_template("addbook.html", categories=mongo.db.categories.find())
+    form = AddBookForm()
+    if form.validate_on_submit():
+        flash(f"Book added to site!", "success")
+        return redirect(url_for("get_books"))
+    return render_template("addbook.html", form=form, categories=mongo.db.categories.find())
 
 @app.route("/insert_book", methods=["POST"])
-def insert_book_review():
+def insert_book():
     """
-    Function to insert a book review into the database
+    Function to insert a book into the database
     """
     books = mongo.db.books
     books.insert_one(request.form.to_dict())
-    """
-    TO DO: add validation of input/required fields
-    """
     return redirect(url_for("get_books"))
 
 @app.route("/edit_book/<book_id>")
@@ -159,9 +163,16 @@ def get_categories():
 @app.route("/add_category")
 def add_category():
     """
-    Function to load form for adding category and render to html
+    Function to load WTForm for adding category and render to html
+    
+    Code adapted from Corey Shafer's tutorial found at
+    https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
     """
-    return render_template("addcategory.html")
+    form = AddCategoryForm()
+    if form.validate_on_submit():
+        flash(f"Category added to site!", "success")
+        return redirect(url_for("get_categories"))
+    return render_template("addcategory.html", form=form)
 
 @app.route("/insert_category", methods=["POST"])
 def insert_category():
@@ -237,12 +248,20 @@ def get_users():
     """
     return render_template("users.html", users=mongo.db.users.find())
 
-@app.route("/login_user")
+@app.route("/login_user", methods=["GET", "POST"])
 def login_user():
     """
     Function to load WTForm for user log in and render to html
+    
+    Code adapted from Corey Shafer's tutorial found at
+    https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
     """
     form = LogInForm()
+    if form.validate_on_submit():
+        flash(f"Log in successful!", "success")
+        return redirect(url_for("home_screen"))
+    else:
+        flash(f"Log in unsuccessful!", "danger")
     return render_template("loginuser.html", form=form)
 
 @app.route("/add_user", methods=["GET", "POST"])
@@ -256,7 +275,6 @@ def add_user():
     form = RegistrationForm()
     if form.validate_on_submit():
         flash(f"Account created for {form.username.data}!", "success")
-        print("successful")
         return redirect(url_for("home_screen"))
     return render_template("adduser.html", form=form)
 
@@ -267,9 +285,7 @@ def insert_user():
     """
     users = mongo.db.users
     users.insert_one(request.form.to_dict())
-    """
-    TO DO: add validation of input/required fields
-    """
+    
     return redirect(url_for("home_screen"))
 
 @app.route("/edit_user/<user_id>")
