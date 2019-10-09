@@ -5,12 +5,15 @@ import os
 from flask import Flask, render_template, request, redirect, url_for
 from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
+from forms import RegistrationForm, LogInForm
 
 app = Flask(__name__)
 
 MONGODB_URI = os.getenv("MONGO_URI")
 
 app.config["MONGO_URI"] = os.getenv("MONGO_URI")
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+
 
 mongo = PyMongo(app)
 
@@ -65,7 +68,7 @@ def get_books(category_id):
             else:
                 pass
     
-    return render_template("books.html", books=merged_result)
+    return render_template("books.html", books=merged_result, categories=mongo.db.categories.find())
 
 @app.route("/get_book/<book_id>")
 def get_book(book_id):
@@ -236,9 +239,10 @@ def get_users():
 @app.route("/add_user")
 def add_user():
     """
-    Function to load form for user registration and render to html
+    Function to load WTForm for user registration and render to html
     """
-    return render_template("adduser.html")
+    form = RegistrationForm()
+    return render_template("adduser.html", form=form)
 
 @app.route("/insert_user", methods=["POST"])
 def insert_user():
