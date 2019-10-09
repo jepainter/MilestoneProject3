@@ -1,59 +1,57 @@
 {% extends "base.html" %} {% block content %}
+<section class="container-fluid"> 
 <div class="row justify-content-around">
     <div class="col-10">
-        <h1>Register</h1>
+        <h1 class="fnt-clr-red">Register User</h1>
         <p>This is the register user page</p>
     </div>
 </div>
 
 <div class="row justify-content-around">
-    <div class="col-10">
+    <div class="col-10 bottom-margin">
         <form action="{{ url_for('insert_user') }}" method="POST">
+            {{ form.hidden_tag() }}
             <legend>Register as a user</legend>
             <div class="form-group">
-                <label class="col-form-label" for="fname">First Name:</label>
-                <input type="text" class="form-control" placeholder="Enter your first name..." name="fname" id="fname">
+                {{ form.fname.label(class="col-form-label") }}
+                {{ form.fname(class="form-control", placeholder="Enter your first name...") }}
             </div>
-            
             <div class="form-group">
-                <label class="col-form-label" for="lname">Surname:</label>
-                <input type="text" class="form-control" placeholder="Enter your surname..." name="lname" id="lname">
+                {{ form.lname.label(class="col-form-label") }}
+                {{ form.lname(class="form-control", placeholder="Enter your surname...") }}
             </div>
-            
             <div class="form-group">
-                <label class="col-form-label" for="email">Email:</label>
-                <input type="email" class="form-control" placeholder="Enter your email address (jsmith@example.com)..." name="email" id="email">
+                {{ form.email.label(class="col-form-label") }}
+                {{ form.email(class="form-control", placeholder="Enter your email address (jsmith@example.com)...") }}
             </div>
-            
             <div class="form-group">
-                <label class="col-form-label" for="phone">Phone:</label>
-                <input type="text" class="form-control" placeholder="Enter your phone number..." name="phone" id="phone">
+                {{ form.phone.label(class="col-form-label") }}
+                {{ form.phone(class="form-control", placeholder="Enter your phone number...") }}
             </div>
-            
             <div class="form-group">
-                <label class="col-form-label" for="username">Username:</label>
-                <input type="text" class="form-control" placeholder="Enter your username..." name="username" id="username">
+                {{ form.username.label(class="col-form-label") }}
+                {{ form.username(class="form-control", placeholder="Enter your username...") }}
             </div>
-            
             <div class="form-group">
-                <label class="col-form-label" for="password">Password:</label>
-                <input type="text" class="form-control" placeholder="Enter your password..." name="password" id="password">
+                {{ form.password.label(class="col-form-label") }}
+                {{ form.password(class="form-control", placeholder="Enter your password...") }}
             </div>
-            
-            <button type="submit" class="btn btn-primary">Register</button>
+            <div class="form-group">
+                {{ form.confirm_password.label(class="col-form-label") }}
+                {{ form.confirm_password(class="form-control", placeholder="Confirm your password...") }}
+            </div>
+            <div class="form-group">
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
         </form>
     </div>
-</div>
-
-<div class="row justify-content-around">
-    <div class="col-10">
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptates vitae aliquid, impedit dignissimos facere voluptate. Omnis vitae, quaerat libero blanditiis culpa cumque quas consequuntur ad soluta. Tempora obcaecati, ex incidunt a reiciendis
-            expedita eaque id facere molestiae nesciunt architecto commodi maiores quam. Earum a libero officiis natus temporibus blanditiis ut, dolores distinctio esse et eligendi corporis eos iste. Perspiciatis itaque, vero maxime fugit excepturi perferendis
-            nam obcaecati, possimus cum. Cumque ipsum laudantium unde possimus animi. Dolorum excepturi, doloremque provident. Quos, error provident saepe ducimus dolores quibusdam quo cupiditate magnam quod eius, tempora vel quas beatae nisi amet voluptas
-            ratione, deleniti officia debitis, et. Dolore et perferendis quas praesentium doloribus velit reprehenderit voluptatem laudantium atque illo! Sunt voluptas repellat at impedit delectus nostrum soluta magnam sequi. Iste ab dicta porro sequi
-            nostrum assumenda aperiam dolor quas mollitia enim dolores molestiae asperiores doloremque labore explicabo, nisi hic repudiandae itaque. Voluptas, asperiores officiis sint doloribus commodi, rerum tenetur labore architecto perspiciatis impedit
-            blanditiis consequatur ullam, veritatis nisi necessitatibus aliquam deserunt quam ducimus, at tempora deleniti saepe porro cumque! Architecto neque officiis modi dolor deserunt dignissimos, praesentium voluptas, nulla ducimus odio a! Inventore
-            blanditiis optio ea ratione a cum maiores aliquam vel nobis neque?</p>
+    <div class="col-10 text-center bottom-margin">
+        <p>
+            If you have an existing account... 
+        </p>
+        
+        <a class="btn btn-info" href="{{ url_for('login_user') }}" role="button">Log In Here!</a>
     </div>
 </div>
+</section>
 {% endblock %}
