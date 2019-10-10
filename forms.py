@@ -52,16 +52,11 @@ class AddBookForm(FlaskForm):
                                 validators=[DataRequired(), Length(min=1)])
     author_lname = StringField("Author Surname", 
                                 validators=[DataRequired(), Length(min=1)])
-    category_id = StringField("Category", 
-                                validators=[DataRequired(), Length(min=1)])
+    category_id = StringField("Category")
     user_id = StringField("UserId", 
-                                validators=[DataRequired(), Length(min=1)])
-    up_votes = StringField("Up Votes", 
-                                validators=[DataRequired(), Length(min=1)])
-    down_votes = StringField("Down Votes", 
-                                validators=[DataRequired(), Length(min=1)])
+                                validators=[DataRequired(), Length(min=2)])
     cover_url = StringField("Cover Link", 
-                                validators=[DataRequired(), Length(min=1)])
+                                validators=[DataRequired(), Length(min=2)])
     
 class AddCategoryForm(FlaskForm):
     """

@@ -39,10 +39,10 @@ def get_books(category_id):
     
     if category_id != "":
         books=mongo.db.books.find({"category_id": category_id})
-        print("specific category given")
+    #    print("specific category given")
     elif category_id == "":
         books=mongo.db.books.find()
-        print("no category given")
+    #    print("no category given")
     
     
     #Populate new dictionary with results from db retrieval
@@ -86,25 +86,67 @@ def get_book(book_id):
 @app.route("/add_book", methods=["GET", "POST"])
 def add_book():
     """
-    Function to load WTForm for adding book
+    Function to load WTForm for adding book and render to html and add to database
     
     Code adapted from Corey Shafer's tutorial found at
     https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
     """
+    
+    
     form = AddBookForm()
+    
     if form.validate_on_submit():
-        flash(f"Book added to site!", "success")
+        flash(f"Book added to site: {form.title.data.title()}!", "success")
+   #     print("Add Book Function>")
+    #    print("Form validation success")
+     #   print("Errors: " + str(form.errors))
+      #  print("Form data: " + str(form.title.data))
+        
+        book = {
+            "title" : form.title.data.lower(),
+            "author_fname" : form.author_fname.data.lower(),
+            "author_lname" : form.author_lname.data.lower(),
+            "category_id" : form.category_id.data,
+            "user_id" : form.user_id.data,
+            "up_votes" : 0,
+            "down_votes" : 0,
+            "cover_url" : form.cover_url.data,
+            "csrf_token" : form.csrf_token.data 
+        }
+        
+        #print(book)
+        
+        books = mongo.db.books
+        books.insert_one(book)
+        
         return redirect(url_for("get_books"))
-    return render_template("addbook.html", form=form, categories=mongo.db.categories.find())
+    else:
+    #    print("Add Book Function>")
+    #    print("Form validation unsuccessful")
+    #    print("Errors: " + str(form.errors))
+    #    print("Form: " + str(form))
+        return render_template("addbook.html", form=form, categories=mongo.db.categories.find())
 
-@app.route("/insert_book", methods=["POST"])
-def insert_book():
-    """
-    Function to insert a book into the database
-    """
-    books = mongo.db.books
-    books.insert_one(request.form.to_dict())
-    return redirect(url_for("get_books"))
+    #old code below
+    #form = AddBookForm()
+    #if form.validate_on_submit():
+    #    flash(f"Book added to site!", "success")
+    #    return redirect(url_for("get_books"))
+    #return render_template("addbook.html", form=form, categories=mongo.db.categories.find())
+    #end of old code
+
+######## 
+#remove this function, no longer required
+#@app.route("/insert_book", methods=["POST"])
+#def insert_book():
+#    """
+#    Function to insert a book into the database
+#    """
+#    books = mongo.db.books
+#    books.insert_one(request.form.to_dict())
+#    return redirect(url_for("get_books"))
+#########
+
 
 @app.route("/edit_book/<book_id>")
 def edit_book(book_id):
@@ -259,7 +301,7 @@ def get_users():
 @app.route("/add_user", methods=["GET","POST"])
 def add_user():
     """
-    Function to load WTForm for user registration and render to html
+    Function to load WTForm for user registration and render to html, and write to database
     
     Code adapted from Corey Shafer's tutorial found at
     https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
@@ -295,7 +337,7 @@ def add_user():
         #print("Form: " + str(form))
         return render_template("adduser.html", form=form)
 
-
+#####################
 # remove insert function below, as it is dealt with through the add user function
 #@app.route("/insert_user/<form>", methods=["GET","POST"])
 #def insert_user(form):
@@ -317,6 +359,8 @@ def add_user():
 #    #print("User: " + str(user))
 #    
 #    return redirect(url_for("home_screen"))
+####################
+
 
 @app.route("/login_user", methods=["GET", "POST"])
 def login_user():
