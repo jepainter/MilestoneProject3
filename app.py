@@ -88,7 +88,7 @@ def add_book():
     """
     Function to load WTForm for adding book and render to html and add to database
     
-    Code adapted from Corey Shafer's tutorial found at
+    WTForms code adapted from Corey Shafer's tutorial found at
     https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
     """
     
@@ -205,25 +205,61 @@ def get_categories():
 @app.route("/add_category", methods=["GET","POST"])
 def add_category():
     """
-    Function to load WTForm for adding category and render to html
+    Function to load WTForm for adding category and render to html and add to database
     
-    Code adapted from Corey Shafer's tutorial found at
+    WTForms code adapted from Corey Shafer's tutorial found at
     https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
     """
+    
+    form = AddCategoryForm()
+    
+    if form.validate_on_submit():
+        flash(f"New category created: {form.category_name.data}!", "success")
+        print("Add Category Function>")
+        print("Form validation success")
+        print("Errors: " + str(form.errors))
+        print("Form data: " + str(form.category_name.data))
+        
+        category = {
+            "category_name" : form.category_name.data.lower(),
+            "cover_url" : form.cover_url.data,
+            "csrf_token" : form.csrf_token.data 
+        }
+        
+        print(category)
+        
+        categories = mongo.db.categories
+        categories.insert_one(category)
+        
+        return redirect(url_for("get_categories"))
+    else:
+        print("Add Category Function>")
+        print("Form validation unsuccessful")
+        print("Errors: " + str(form.errors))
+        print("Form: " + str(form))
+        return render_template("addcategory.html", form=form)
+    
+    """
+    old code, remove
     form = AddCategoryForm()
     if form.validate_on_submit():
         flash(f"Category added to site!", "success")
         return redirect(url_for("get_categories"))
     return render_template("addcategory.html", form=form)
+    end of old code
+    """
+##########
+#remove function not required anymore
+#@app.route("/insert_category", methods=["POST"])
+#def insert_category():
+#    """
+#    Function to insert a category into the database
+#    """
+#    categories = mongo.db.categories
+#    categories.insert_one(request.form.to_dict())
+#    return redirect(url_for("get_categories"))
+###########
 
-@app.route("/insert_category", methods=["POST"])
-def insert_category():
-    """
-    Function to insert a category into the database
-    """
-    categories = mongo.db.categories
-    categories.insert_one(request.form.to_dict())
-    return redirect(url_for("get_categories"))
 
 @app.route("/edit_category/<category_id>")
 def edit_category(category_id):
@@ -262,7 +298,7 @@ def add_comment(book_id):
     """
     Function to load WTForm for adding comment on book
     
-    Code adapted from Corey Shafer's tutorial found at
+    WTForms code adapted from Corey Shafer's tutorial found at
     https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
     """
     form = AddCommentForm()
@@ -303,7 +339,7 @@ def add_user():
     """
     Function to load WTForm for user registration and render to html, and write to database
     
-    Code adapted from Corey Shafer's tutorial found at
+    WTForms code adapted from Corey Shafer's tutorial found at
     https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
     """
     form = RegistrationForm()
@@ -367,7 +403,7 @@ def login_user():
     """
     Function to load WTForm for user log in and render to html
     
-    Code adapted from Corey Shafer's tutorial found at
+    WTForms code adapted from Corey Shafer's tutorial found at
     https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
     """
     form = LogInForm()

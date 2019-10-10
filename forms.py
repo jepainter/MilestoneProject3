@@ -63,9 +63,9 @@ class AddCategoryForm(FlaskForm):
     Form to capture and validate new category to add
     """
     category_name = StringField("Category Name", 
-                            validators=[DataRequired(), Length(min=1)])
+                            validators=[DataRequired(), Length(min=2)])
     cover_url = StringField("Cover Link", 
-                            validators=[DataRequired(), Length(min=1)])
+                            validators=[DataRequired(), Length(min=2)])
     
 class AddCommentForm(FlaskForm):
     """
