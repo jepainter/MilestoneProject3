@@ -5,7 +5,7 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
-from forms import RegistrationForm, LogInForm, AddBookForm, AddCategoryForm
+from forms import RegistrationForm, LogInForm, AddBookForm, AddCategoryForm, AddCommentForm
 
 app = Flask(__name__)
 
@@ -18,7 +18,7 @@ app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 mongo = PyMongo(app)
 
 @app.route("/", methods=["GET", "POST"])
-@app.route("/home_screen", methods=["GET", "POST"])
+@app.route("/home_screen", methods=["GET", "POST"]) #remove this if not necessary, test first
 def home_screen():
     """
     Function for rendering landing page
@@ -83,7 +83,7 @@ def get_book(book_id):
     
     return render_template("book.html", book=the_book, categories=all_categories, users=all_users, comments=all_comments)
 
-@app.route("/add_book")
+@app.route("/add_book", methods=["GET", "POST"])
 def add_book():
     """
     Function to load WTForm for adding book
@@ -160,7 +160,7 @@ def get_categories():
     """
     return render_template("categories.html", categories=mongo.db.categories.find())
 
-@app.route("/add_category")
+@app.route("/add_category", methods=["GET","POST"])
 def add_category():
     """
     Function to load WTForm for adding category and render to html
@@ -215,13 +215,20 @@ def delete_category(category_id):
 """
 Management (CRUD) of comments collection in database
 """    
-@app.route("/add_comment/<book_id>")
+@app.route("/add_comment/<book_id>", methods=["GET", "POST"])
 def add_comment(book_id):
     """
-    Function to load form for adding comment and render to html
+    Function to load WTForm for adding comment on book
+    
+    Code adapted from Corey Shafer's tutorial found at
+    https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
     """
+    form = AddCommentForm()
     the_book = mongo.db.books.find_one({"_id" : ObjectId(book_id)})
-    return render_template("addcomment.html", book=the_book)
+    if form.validate_on_submit():
+        flash(f"Comment added for book!", "success")
+        return redirect(url_for("get_book(book_id)"))
+    return render_template("addcomment.html", form=form, book=the_book)
 
 @app.route("/insert_comment/<book_id>", methods=["POST"])
 def insert_comment(book_id):
@@ -248,6 +255,69 @@ def get_users():
     """
     return render_template("users.html", users=mongo.db.users.find())
 
+
+@app.route("/add_user", methods=["GET","POST"])
+def add_user():
+    """
+    Function to load WTForm for user registration and render to html
+    
+    Code adapted from Corey Shafer's tutorial found at
+    https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
+    """
+    form = RegistrationForm()
+    
+    if form.validate_on_submit():
+        flash(f"Account created for {form.username.data}!", "success")
+        #print("Add User Function>")
+        #print("Form validation success")
+        #print("Errors: " + str(form.errors))
+        #print("Form data: " + str(form.username.data))
+        
+        user = {
+            "fname" : form.fname.data.lower(),
+            "lname" : form.lname.data.lower(),
+            "email" : form.email.data.lower(),
+            "username" : form.username.data.lower(),
+            "password" : form.password.data,
+            "csrf_token" : form.csrf_token.data 
+        }
+        
+        #print(user)
+        
+        users = mongo.db.users
+        users.insert_one(user)
+        
+        return redirect(url_for("home_screen"))
+    else:
+        #print("Add User Function>")
+        #print("Form validation unsuccessful")
+        #print("Errors: " + str(form.errors))
+        #print("Form: " + str(form))
+        return render_template("adduser.html", form=form)
+
+
+# remove insert function below, as it is dealt with through the add user function
+#@app.route("/insert_user/<form>", methods=["GET","POST"])
+#def insert_user(form):
+#    """
+#    Function to insert a new user into the database
+#    """
+#    #user={
+#    #    "username" : form.username.data,
+#    #    "fname" : form.fname.data,
+#   #    "lname" : form.lname.data,
+#    #    }
+#    
+#    #users = mongo.db.users
+#    #users.insert_one(user)
+#    print("Insert User Function>")
+#    print("Form data: " + str(form.username.data))
+#    for field in form:
+#        print(str(field))
+#    #print("User: " + str(user))
+#    
+#    return redirect(url_for("home_screen"))
+
 @app.route("/login_user", methods=["GET", "POST"])
 def login_user():
     """
@@ -263,30 +333,6 @@ def login_user():
     else:
         flash(f"Log in unsuccessful!", "danger")
     return render_template("loginuser.html", form=form)
-
-@app.route("/add_user", methods=["GET", "POST"])
-def add_user():
-    """
-    Function to load WTForm for user registration and render to html
-    
-    Code adapted from Corey Shafer's tutorial found at
-    https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
-    """
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        flash(f"Account created for {form.username.data}!", "success")
-        return redirect(url_for("home_screen"))
-    return render_template("adduser.html", form=form)
-
-@app.route("/insert_user", methods=["POST"])
-def insert_user():
-    """
-    Function to insert a new user into the database
-    """
-    users = mongo.db.users
-    users.insert_one(request.form.to_dict())
-    
-    return redirect(url_for("home_screen"))
 
 @app.route("/edit_user/<user_id>")
 def edit_user(user_id):

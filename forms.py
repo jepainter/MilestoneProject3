@@ -14,6 +14,8 @@ Imports of packages for functioning of forms for the site
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
+
+
 """
 Form classes for various forms used
 """
@@ -22,19 +24,12 @@ class RegistrationForm(FlaskForm):
     """
     Form to capture and validate registration of users
     """
-    fname = StringField("First Name", 
-                        validators=[DataRequired(), Length(min=1)])
-    lname = StringField("Surname", 
-                        validators=[DataRequired(), Length(min=1)])
-    email = StringField("Email", 
-                        validators=[DataRequired(), Email()])
-    username = StringField("Username", 
-                            validators=[DataRequired(), Length(min=2, max=30)])
-    password = PasswordField("Password", 
-                            validators=[DataRequired(), Length(min=8, max=16)])
-    confirm_password = PasswordField("Confirm Password", 
-                                        validators=[DataRequired(), EqualTo("password")])
-    submit = SubmitField("Register")
+    fname = StringField("First Name", validators=[DataRequired(), Length(min=1)])
+    lname = StringField("Surname", validators=[DataRequired(), Length(min=1)])
+    email = StringField("Email", validators=[DataRequired(), Email()])
+    username = StringField("Username", validators=[DataRequired(), Length(min=2, max=30)])
+    password = PasswordField("Password", validators=[DataRequired(), Length(min=8, max=16)])
+    confirm_password = PasswordField("Confirm Password", validators=[DataRequired(), EqualTo("password")])
                             
 class LogInForm(FlaskForm):
     """
@@ -67,11 +62,19 @@ class AddBookForm(FlaskForm):
                                 validators=[DataRequired(), Length(min=1)])
     cover_url = StringField("Cover Link", 
                                 validators=[DataRequired(), Length(min=1)])
-    submit = SubmitField("Add Book")
     
 class AddCategoryForm(FlaskForm):
+    """
+    Form to capture and validate new category to add
+    """
     category_name = StringField("Category Name", 
                             validators=[DataRequired(), Length(min=1)])
     cover_url = StringField("Cover Link", 
                             validators=[DataRequired(), Length(min=1)])
-    submit = SubmitField("Add Category")
+    
+class AddCommentForm(FlaskForm):
+    """
+    Form to capture and validate new comment to add
+    """
+    comment = StringField("Comment", validators=[DataRequired(), Length(min=2)])
+    user_id = StringField("UserId", validators=[DataRequired(), Length(min=10)])
