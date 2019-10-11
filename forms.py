@@ -54,7 +54,7 @@ class AddBookForm(FlaskForm):
                                 validators=[DataRequired(), Length(min=1)])
     category_id = StringField("Category")
     user_id = StringField("UserId", 
-                                validators=[DataRequired(), Length(min=2)])
+                                validators=[DataRequired(), Length(min=10)])
     cover_url = StringField("Cover Link", 
                                 validators=[DataRequired(), Length(min=2)])
     

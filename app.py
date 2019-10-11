@@ -215,10 +215,10 @@ def add_category():
     
     if form.validate_on_submit():
         flash(f"New category created: {form.category_name.data}!", "success")
-        print("Add Category Function>")
-        print("Form validation success")
-        print("Errors: " + str(form.errors))
-        print("Form data: " + str(form.category_name.data))
+    #    print("Add Category Function>")
+    #    print("Form validation success")
+    #    print("Errors: " + str(form.errors))
+    #    print("Form data: " + str(form.category_name.data))
         
         category = {
             "category_name" : form.category_name.data.lower(),
@@ -226,17 +226,17 @@ def add_category():
             "csrf_token" : form.csrf_token.data 
         }
         
-        print(category)
+    #    print(category)
         
         categories = mongo.db.categories
         categories.insert_one(category)
         
         return redirect(url_for("get_categories"))
     else:
-        print("Add Category Function>")
-        print("Form validation unsuccessful")
-        print("Errors: " + str(form.errors))
-        print("Form: " + str(form))
+    #    print("Add Category Function>")
+    #    print("Form validation unsuccessful")
+    #    print("Errors: " + str(form.errors))
+    #    print("Form: " + str(form))
         return render_template("addcategory.html", form=form)
     
     """
@@ -301,27 +301,73 @@ def add_comment(book_id):
     WTForms code adapted from Corey Shafer's tutorial found at
     https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
     """
+    
+    form = AddCommentForm()
+    #the_book = mongo.db.books.find_one({"_id" : ObjectId(book_id)})
+#    print("Book_ID: " + str(book_id))
+    #print(the_book)
+    
+    if form.validate_on_submit():
+        flash(f"New comment posted!", "success")
+#        print("Add Comment Function>")
+#        print("Form validation success")
+#        print("Errors: " + str(form.errors))
+#        print("Form data: " + str(form.comment.data))
+        
+        comment = {
+            "comment" : form.comment.data.lower(),
+            "book_id" : book_id,
+            "user_id" : form.user_id.data,
+            "csrf_token" : form.csrf_token.data 
+        }
+        
+#        print(comment)
+        
+        
+        comments = mongo.db.comments
+        comments.insert_one(comment)
+        
+        return redirect(url_for("get_book", book_id=book_id))
+        
+    else:
+#        print("Add Comment Function>")
+#        print("Form validation unsuccessful")
+#        print("Errors: " + str(form.errors))
+#        print("Form: " + str(form))
+#        print("Book_ID: " + str(book_id))
+        return render_template("addcomment.html", form=form, book_id=book_id)
+    
+
+    
+    
+    
+    """"
+    old code, remove if functioning
     form = AddCommentForm()
     the_book = mongo.db.books.find_one({"_id" : ObjectId(book_id)})
     if form.validate_on_submit():
         flash(f"Comment added for book!", "success")
         return redirect(url_for("get_book(book_id)"))
     return render_template("addcomment.html", form=form, book=the_book)
-
-@app.route("/insert_comment/<book_id>", methods=["POST"])
-def insert_comment(book_id):
+    end of old code
     """
-    Function to insert a comment into the database
-    """
-    
-    comment = request.form.to_dict()
-    comment["book_id"] = book_id
-    
-    comments = mongo.db.comments
-    comments.insert_one(comment)
-    
-    return redirect(url_for('get_book', book_id=book_id))
 
+##########
+#remove function not required any more
+#@app.route("/insert_comment/<book_id>", methods=["POST"])
+#def insert_comment(book_id):
+#    """
+#    Function to insert a comment into the database
+#    """
+#    
+#    comment = request.form.to_dict()
+#    comment["book_id"] = book_id
+#    
+#    comments = mongo.db.comments
+#    comments.insert_one(comment)
+#    
+#    return redirect(url_for('get_book', book_id=book_id))
+#############3
 
 """
 Management (CRUD) of users collection in database
