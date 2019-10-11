@@ -44,28 +44,36 @@ def get_books(category_id):
         books=mongo.db.books.find()
     #    print("no category given")
     
-    
-    #Populate new dictionary with results from db retrieval
+    #Populate new dictionary with results from book collection retrieval
     for book in books:
         for key, value in book.items():
             if key == "_id":
                 merged_result[str(value)] = book
     
-    #Update new dictionary with category and user information
+    #Update new dictionary with category information
     for book_id, book_detail in merged_result.items():
         for key, value in book_detail.items():
             if key == "category_id":
-                the_category=mongo.db.categories.find_one({"_id": ObjectId(value)})
-                merged_result[book_id]["category_name"] = merged_result[book_id].pop("category_id")
-                for k, v in the_category.items():
-                    if k == "category_name":
-                        merged_result[book_id]["category_name"] = the_category[k]    
-            elif key == "user_id":
-                the_user=mongo.db.users.find_one({"_id": ObjectId(value)})
-                merged_result[book_id]["username"] = merged_result[book_id].pop("user_id")
-                for k, v in the_user.items():
-                    if k == "username":
-                        merged_result[book_id]["username"] = the_user[k]
+                if value != "":
+                    the_category=mongo.db.categories.find_one({"_id": ObjectId(value)})
+                    if the_category != None:
+                        merged_result[book_id]["category_name"] = merged_result[book_id].pop("category_id")
+                        for k, v in the_category.items():
+                            if k == "category_name":
+                                merged_result[book_id]["category_name"] = the_category[k]
+                    else:
+                        merged_result[book_id]["category_name"] = merged_result[book_id].pop("category_id")
+                        merged_result[book_id]["category_name"] = "Not assigned yet"
+                else:
+                    merged_result[book_id]["category_name"] = merged_result[book_id].pop("category_id")
+                    merged_result[book_id]["category_name"] = "Not assigned yet"
+                    
+#            elif key == "user_id":
+#                the_user=mongo.db.users.find_one({"_id": ObjectId(value)})
+#                merged_result[book_id]["username"] = merged_result[book_id].pop("user_id")
+#                for k, v in the_user.items():
+#                    if k == "username":
+#                        merged_result[book_id]["username"] = the_user[k]
             else:
                 pass
     
@@ -77,11 +85,72 @@ def get_book(book_id):
     Function to get individual book details and render to html
     """
     the_book = mongo.db.books.find_one({"_id": ObjectId(book_id)})
-    all_categories = mongo.db.categories.find()
-    all_users = mongo.db.users.find()
+    the_review =mongo.db.reviews.find_one({"book_id" : book_id})
+#   
+#    print("The Book: ")
+#    print(the_book)
+#    print("")
+#    all_categories = mongo.db.categories.find()
+#    print("All Categories: ")
+#    print(all_categories)
+#    print("")
+    for k, v in the_book.items():
+        if k == 'category_id' and v != "":    
+            the_category = mongo.db.categories.find_one({"_id" : ObjectId(v)})
+            if the_category != None:    
+#                print("The Category: ")
+                print(the_category)
+#                print("")
+            else:
+                the_category = {
+                    "category_name" : "Not assigned yet"
+                }
+        
+        elif k == 'category_id' and v == "":
+            the_category = {
+                "category_name" : "Not assigned yet"
+            }
+                
+        elif k == 'user_id' and v != "":
+            the_user = mongo.db.users.find_one({"_id" : ObjectId(v)})
+            if the_user != None:
+#                print("The User: ")
+                print(the_user)
+#                print("")
+            else:
+                the_user = {
+                    "username" : "Anonymous"
+                }
+        elif k == 'user_id' and v == "":
+            the_user = {
+                "username" : "Anonymous"
+            }
+    
+    if the_review != None:
+        for k, v in the_review.items():
+            if k == 'user_id':
+                the_reviewer = mongo.db.users.find_one({"_id" : ObjectId(v)})
+#                print("The Review: ")
+                print(the_review)
+#                print("")
+#                print("The Reviewer: ")
+                print(the_reviewer)
+#                print("")
+    else:
+        the_review = {
+            "review" : "Not reviewed yet"
+        }
+        the_reviewer = {
+            "username" : "No reviewer yet"
+        }
+    
+#    print("The Book: ")
+#    print(the_book)
+#    print("")
+#   all_users = mongo.db.users.find()
     all_comments = mongo.db.comments.find()
     
-    return render_template("book.html", book=the_book, categories=all_categories, users=all_users, comments=all_comments)
+    return render_template("book.html", book=the_book, category=the_category, user=the_user, comments=all_comments, review=the_review, reviewer=the_reviewer)
 
 @app.route("/add_book", methods=["GET", "POST"])
 def add_book():
