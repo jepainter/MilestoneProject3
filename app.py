@@ -193,7 +193,32 @@ def delete_book(book_id):
 
 """
 Management (CRUD) of reviews collection in database
-"""    
+"""  
+@app.route("/check_review_exists/<book_id>")
+def check_review_exists(book_id):
+    """
+    Function to check if a review exists already, if so, then pass back to the get_book page.  If not, proceed to add_review function
+    """
+    
+    a_review=mongo.db.reviews.find_one({"book_id" : book_id})
+    
+#   print("Search match")
+#    print(book_id)
+#    print(a_review)
+    
+    if a_review != None:
+#        print("Review found--> ")
+#        print(a_review)
+        flash(f"A review already exists for the book", "warning")
+        return redirect(url_for('get_book', book_id=book_id))
+    else:
+#        print("Review does not exist-->")
+#        print(a_review)
+        return redirect(url_for("add_review", book_id=book_id))
+    
+    flash(f"Oops, something went wrong!", "danger")
+    return redirect(url_for('get_book', book_id=book_id))
+
 @app.route("/add_review/<book_id>", methods=["GET", "POST"])
 def add_review(book_id):
     """
@@ -207,6 +232,10 @@ def add_review(book_id):
     
     if form.validate_on_submit():
         flash(f"New review uploaded!", "success")
+#        print("Add Review Function>")
+#        print("Form validation success")
+#        print("Errors: " + str(form.errors))
+#        print("Form data: " + str(form.review.data))
         
         review = {
             "review" : form.review.data,
@@ -215,13 +244,23 @@ def add_review(book_id):
             "csrf_token" : form.csrf_token.data 
         }
         
+#        print(review)
+        
         reviews = mongo.db.reviews
         reviews.insert_one(review)
         
         return redirect(url_for("get_book", book_id=book_id))
         
     else:
+#        print("Add Review Function>")
+#        print("Form validation unsuccessful")
+#        print("Errors: " + str(form.errors))
+#        print("Form: " + str(form))
+#        print("Book_ID: " + str(book_id))
         return render_template("addreview.html", form=form, book_id=book_id)
+        
+    flash(f"Oops, something went wrong!", "danger")
+    return redirect(url_for('get_book', book_id=book_id))
 
 """
 Management (CRUD) of categories collection in database

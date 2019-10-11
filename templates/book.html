@@ -16,14 +16,14 @@
             </div>
             <div class="col-12 col-md-7 col-lg-8">
                 <div class="card bottom-margin">
-                    <h3 class="card-header">{{ book.title.title() }}</h3>
+                    <h3 class="card-header bg-clr-dark-red">{{ book.title.title() }}</h3>
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><h6>Author: </h6>{{ book.author_fname.title() }} {{ book.author_lname.title() }}</li>
+                        <li class="list-group-item bg-clr-white"><h6>Author: </h6><h4>{{ book.author_fname.title() }} {{ book.author_lname.title() }}</h4></li>
                         {% for category in categories %} {% if category._id|string() == book.category_id|string() %}
-                        <li class="list-group-item"><h6>Category: </h6>{{ category.category_name.title() }}</li>
+                        <li class="list-group-item bg-clr-white"><h6>Category: </h6><h4>{{ category.category_name.title() }}</h4></li>
                         {% endif %} {% endfor %}
-                        <li class="list-group-item"><h6>Date Added: </h6>{{ book.date_added }}</li>
-                        <li class="list-group-item"><h6>Votes: </h6><i class="fas fa-arrow-alt-circle-up"></i> {{ book.up_votes }} | <i class="fas fa-arrow-alt-circle-down"></i> {{ book.down_votes }} </li>
+                        <li class="list-group-item bg-clr-white"><h6>Date Added: </h6><h4>{{ book.date_added }}</h4></li>
+                        <li class="list-group-item bg-clr-white"><h6>Votes: </h6><h4><i class="fas fa-arrow-alt-circle-up"></i> {{ book.up_votes }} | <i class="fas fa-arrow-alt-circle-down"></i> {{ book.down_votes }} </h4></li>
                     </ul>
                 </div>
             </div>
@@ -48,6 +48,7 @@
                     <li class="list-group-item"><h6>Reviewed By: </h6>{{ user.username }}</li>
                 {% endif %} {% endfor %}
                 <li class="list-group-item">
+                    <a class="btn btn-info" href="{{ url_for('check_review_exists', book_id=book._id) }}" role="button">Add Review</a>
                     <a class="btn btn-info" href="#" role="button">Edit Review</a>
                     <a class="btn btn-danger" href="#" role="button">Delete Review</a>
                 </li>
@@ -68,11 +69,11 @@
                     {% if comment.book_id == book._id|string() %}
                     <li class="list-group-item">
                        <div class="row justify-content-around">
-                       <div class="col-12 col-md-10">
-                            <p>{{ comment.book_id }} - {{ comment.comment }}</p>
+                       <div class="col-12 col-md-7 col-lg-10">
+                            <p>{{ comment.book_id }} - {{ comment.comment.capitalize() }}</p>
                         </div>
-                        <div class="col-12 col-md-2">
-                            <a class="btn btn-danger" href="#" role="button">Delete</a>
+                        <div class="col-12 col-md-2 col-lg-2">
+                            <a class="btn btn-danger btn-sm" href="#" role="button">Delete</a>
                         </div>
                         </div>
                     </li>
