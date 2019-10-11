@@ -71,5 +71,12 @@ class AddCommentForm(FlaskForm):
     """
     Form to capture and validate new comment to add
     """
-    comment = StringField("Comment", validators=[DataRequired(), Length(min=2)])
+    comment = StringField("Comment", validators=[DataRequired(), Length(min=2, max=140)])
+    user_id = StringField("UserId", validators=[DataRequired(), Length(min=10)])
+
+class AddReviewForm(FlaskForm):
+    """
+    Form to capture and validate new review to add
+    """
+    review = StringField("Review", validators=[DataRequired(), Length(min=10, max=1000)])
     user_id = StringField("UserId", validators=[DataRequired(), Length(min=10)])

@@ -5,7 +5,7 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
-from forms import RegistrationForm, LogInForm, AddBookForm, AddCategoryForm, AddCommentForm
+from forms import RegistrationForm, LogInForm, AddBookForm, AddCategoryForm, AddCommentForm, AddReviewForm
 
 app = Flask(__name__)
 
@@ -191,6 +191,37 @@ def delete_book(book_id):
     mongo.db.books.remove({"_id" : ObjectId(book_id)})
     return redirect(url_for("get_books"))
 
+"""
+Management (CRUD) of reviews collection in database
+"""    
+@app.route("/add_review/<book_id>", methods=["GET", "POST"])
+def add_review(book_id):
+    """
+    Function to load WTForm for adding review on book
+    
+    WTForms code adapted from Corey Shafer's tutorial found at
+    https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
+    """
+    
+    form = AddReviewForm()
+    
+    if form.validate_on_submit():
+        flash(f"New review uploaded!", "success")
+        
+        review = {
+            "review" : form.review.data,
+            "book_id" : book_id,
+            "user_id" : form.user_id.data,
+            "csrf_token" : form.csrf_token.data 
+        }
+        
+        reviews = mongo.db.reviews
+        reviews.insert_one(review)
+        
+        return redirect(url_for("get_book", book_id=book_id))
+        
+    else:
+        return render_template("addreview.html", form=form, book_id=book_id)
 
 """
 Management (CRUD) of categories collection in database
