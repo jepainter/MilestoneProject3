@@ -9,21 +9,23 @@
 <div class="row align-items-center justify-content-around">
     <div class="col-10">
         <div class="row align-items-center justify-content-around">
-            <div class="col-12 col-md-5 col-lg-4">
+            <div class="col-12 col-md-5 col-lg-4 bottom-margin">
                 <div class="card bottom-margin bg-clr-transparent no-border">
                     <img class="book-img" src="{{ book.cover_url }}" alt="Image of {{ book.title.title() }}"></img>
                 </div>
             </div>
             <div class="col-12 col-md-7 col-lg-8">
-                <div class="card bottom-margin">
-                    <h3 class="card-header bg-clr-dark-red">{{ book.title.title() }}</h3>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item bg-clr-white"><h6>Author: </h6><h4>{{ book.author_fname.title() }} {{ book.author_lname.title() }}</h4></li>
-                        <li class="list-group-item bg-clr-white"><h6>Category: </h6><h4>{{ category.category_name.title() }}</h4></li>
-                        <li class="list-group-item bg-clr-white"><h6>Date Added: </h6><h4>{{ book.date_added }}</h4></li>
-                        <li class="list-group-item bg-clr-white"><h6>Added By: </h6><h4>{{ user.username }}</h4></li>
-                        <li class="list-group-item bg-clr-white"><h6>Votes: </h6><h4><i class="fas fa-arrow-alt-circle-up"></i> {{ book.up_votes }} | <i class="fas fa-arrow-alt-circle-down"></i> {{ book.down_votes }} </h4></li>
+                <div class="card bottom-margin no-border">
+                    <div class="card-body bg-clr-white">
+                    <ul class="list-group list-group-flush bg-clr-transparent">
+                        <li class="list-group-item bg-clr-dark-red"><h3>{{ book.title.title() }}</h3></li>
+                        <li class="list-group-item bg-clr-transparent"><h6>Author: </h6><h4>{{ book.author_fname.title() }} {{ book.author_lname.title() }}</h4></li>
+                        <li class="list-group-item bg-clr-transparent"><h6>Category: </h6><h4>{{ category.category_name.title() }}</h4></li>
+                        <li class="list-group-item bg-clr-transparent"><h6>Added By: </h6><h4>{{ user.username }}</h4></li>
+                        <li class="list-group-item bg-clr-transparent"><h6>Date Added: </h6><h4>{{ book.date_added }}</h4></li>
+                        <li class="list-group-item bg-clr-transparent"><h6>Votes: </h6><h4><i class="fas fa-arrow-alt-circle-up"></i> {{ book.up_votes }} | <i class="fas fa-arrow-alt-circle-down"></i> {{ book.down_votes }} </h4></li>
                     </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -42,8 +44,9 @@
     <div class="col-10">
         <div class="card bottom-margin">
             <ul class="list-group list-group-flush">
+                <li class="list-group-item bg-clr-white"><h6>Reviewed By: </h6>{{ reviewer.username }}</li>
+                <li class="list-group-item bg-clr-white"><h6>Review Date: </h6>{{ review.date_added }}</li>
                 <li class="list-group-item"><h6>Review: </h6>{{ review.review.capitalize() }}</li>
-                <li class="list-group-item bg-clr-white"><h6>Reviewed By: </h6><h4>{{ reviewer.username }}</h4></li>
                 <li class="list-group-item bg-clr-white">
                     <a class="btn btn-info" href="{{ url_for('check_review_exists', book_id=book._id) }}" role="button">Add Review</a>
                     <a class="btn btn-info" href="#" role="button">Edit Review</a>
@@ -64,16 +67,20 @@
                 </li>
                 {% for comment in comments %}
                     {% if comment.book_id == book._id|string() %}
-                    <li class="list-group-item">
-                       <div class="row justify-content-around">
-                       <div class="col-12 col-md-7 col-lg-10">
-                            <p>{{ comment.book_id }} - {{ comment.comment.capitalize() }}</p>
-                        </div>
-                        <div class="col-12 col-md-2 col-lg-2">
-                            <a class="btn btn-danger btn-sm" href="#" role="button">Delete</a>
-                        </div>
-                        </div>
-                    </li>
+                        {% for commenter in commenters %}
+                            {% if comment.user_id == commenter._id|string() %}
+                                <li class="list-group-item">
+                                   <div class="row justify-content-around">
+                                   <div class="col-12 col-md-7 col-lg-10">
+                                        <p> {{commenter.username }} - {{ comment.book_id }} - {{ comment.comment.capitalize() }}</p>
+                                    </div>
+                                    <div class="col-12 col-md-2 col-lg-2">
+                                        <a class="btn btn-danger btn-sm" href="#" role="button">Delete</a>
+                                    </div>
+                                    </div>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
                     {% endif %}
                 {% endfor %}
             </ul>

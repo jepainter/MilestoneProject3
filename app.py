@@ -2,8 +2,10 @@
 Imports of packages for functioning of site
 """
 import os
+from datetime import date
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_pymongo import PyMongo
+from flask_paginate import Pagination, get_page_parameter
 from bson.objectid import ObjectId
 from forms import RegistrationForm, LogInForm, AddBookForm, AddCategoryForm, AddCommentForm, AddReviewForm
 
@@ -94,9 +96,9 @@ def get_book(book_id):
 #    print("All Categories: ")
 #    print(all_categories)
 #    print("")
-    for k, v in the_book.items():
-        if k == 'category_id' and v != "":    
-            the_category = mongo.db.categories.find_one({"_id" : ObjectId(v)})
+    for book_k, book_v in the_book.items():
+        if book_k == 'category_id' and book_v != "":    
+            the_category = mongo.db.categories.find_one({"_id" : ObjectId(book_v)})
             if the_category != None:    
 #                print("The Category: ")
                 print(the_category)
@@ -106,13 +108,13 @@ def get_book(book_id):
                     "category_name" : "Not assigned yet"
                 }
         
-        elif k == 'category_id' and v == "":
+        elif book_k == 'category_id' and book_v == "":
             the_category = {
                 "category_name" : "Not assigned yet"
             }
                 
-        elif k == 'user_id' and v != "":
-            the_user = mongo.db.users.find_one({"_id" : ObjectId(v)})
+        elif book_k == 'user_id' and book_v != "":
+            the_user = mongo.db.users.find_one({"_id" : ObjectId(book_v)})
             if the_user != None:
 #                print("The User: ")
                 print(the_user)
@@ -121,15 +123,15 @@ def get_book(book_id):
                 the_user = {
                     "username" : "Anonymous"
                 }
-        elif k == 'user_id' and v == "":
+        elif book_k == 'user_id' and book_v == "":
             the_user = {
                 "username" : "Anonymous"
             }
     
     if the_review != None:
-        for k, v in the_review.items():
-            if k == 'user_id':
-                the_reviewer = mongo.db.users.find_one({"_id" : ObjectId(v)})
+        for review_k, review_v in the_review.items():
+            if review_k == 'user_id':
+                the_reviewer = mongo.db.users.find_one({"_id" : ObjectId(review_v)})
 #                print("The Review: ")
                 print(the_review)
 #                print("")
@@ -138,7 +140,8 @@ def get_book(book_id):
 #                print("")
     else:
         the_review = {
-            "review" : "Not reviewed yet"
+            "review" : "Not reviewed yet",
+            "date_added" : "Not reviewed yet"
         }
         the_reviewer = {
             "username" : "No reviewer yet"
@@ -148,9 +151,12 @@ def get_book(book_id):
 #    print(the_book)
 #    print("")
 #   all_users = mongo.db.users.find()
-    all_comments = mongo.db.comments.find()
+    the_comments = mongo.db.comments.find({"book_id" : book_id})
+#    the_comments = get_comments(book_id)
     
-    return render_template("book.html", book=the_book, category=the_category, user=the_user, comments=all_comments, review=the_review, reviewer=the_reviewer)
+    the_commenters = list(mongo.db.users.find())
+    
+    return render_template("book.html", book=the_book, category=the_category, user=the_user, comments=the_comments, review=the_review, reviewer=the_reviewer, commenters = the_commenters)
 
 @app.route("/add_book", methods=["GET", "POST"])
 def add_book():
@@ -179,6 +185,7 @@ def add_book():
             "user_id" : form.user_id.data,
             "up_votes" : 0,
             "down_votes" : 0,
+            "date_added" : date.today().strftime("%Y/%m/%d"),
             "cover_url" : form.cover_url.data,
             "csrf_token" : form.csrf_token.data 
         }
@@ -263,6 +270,7 @@ def delete_book(book_id):
 """
 Management (CRUD) of reviews collection in database
 """  
+
 @app.route("/check_review_exists/<book_id>")
 def check_review_exists(book_id):
     """
@@ -310,6 +318,7 @@ def add_review(book_id):
             "review" : form.review.data,
             "book_id" : book_id,
             "user_id" : form.user_id.data,
+            "date_added" : date.today().strftime("%Y/%m/%d"),
             "csrf_token" : form.csrf_token.data 
         }
         
@@ -432,6 +441,58 @@ def delete_category(category_id):
 """
 Management (CRUD) of comments collection in database
 """    
+
+@app.route("/get_comments/<book_id>")
+def get_comments(book_id):
+    """
+    Function to fetch comments from database and render to html
+    """
+    
+    the_comments = mongo.db.comments.find({"book_id" : book_id})
+    the_commenters = mongo.db.users.find()
+    users = list(the_commenters)
+    
+    print("#####################################################")
+    print("Printing the_commenters from the get_comment function")
+    for commenter in the_commenters:
+        print(commenter)
+        print("")
+    
+    print("#####################################################")
+    print("Printing users from the get_comment function")
+    for user in users:
+        print(user)
+        print("")
+    
+    
+    print("Printing the comments from get_comment function")
+    for comment in the_comments:
+        for comment_k, comment_v in comment.items():
+            print("comment_k: " + str(comment_k) + " comment_v: " + str(comment_v))
+            if comment_k == 'user_id' and comment_v != "":
+                print("User ID: " + str(comment_v))
+                the_user = mongo.db.users.find_one({"_id" : ObjectId(comment_v)})
+                for user_k, user_v in the_user.items():
+                    if user_k == "username" and user_v != "":
+                        comment = { "username" : user_v }
+                        print("Username: " + str(user_v))
+                        print("comment:" + str(comment))
+                    else:
+                        comment = {"username" : "Anonymous commenter 1" }
+            else:
+                comment = {"username" : "Anonymous commenter 2"}
+            print("")
+    
+    
+    print("#####################################################")
+    print("Printing the comments from the get_comment function")
+    for comment in the_comments:
+        for comment_k, comment_v in comment:
+            print("Comment k: " + str(comment_k) + " Comment v: " + str(comment_v))
+            print("")
+    
+    return the_comments
+
 @app.route("/add_comment/<book_id>", methods=["GET", "POST"])
 def add_comment(book_id):
     """
