@@ -5,7 +5,6 @@ import os
 from datetime import date
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_pymongo import PyMongo
-from flask_paginate import Pagination, get_page_parameter
 from bson.objectid import ObjectId
 from forms import RegistrationForm, LogInForm, AddBookForm, AddCategoryForm, AddCommentForm, AddReviewForm
 
@@ -25,6 +24,7 @@ def home_screen():
     """
     Function for rendering landing page
     """
+    
     return render_template("index.html", categories=mongo.db.categories.find())
 
 
@@ -37,14 +37,14 @@ def get_books(category_id):
     """
     Function to fetch books from database and render to html
     """
+    
     merged_result={}
     
     if category_id != "":
         books=mongo.db.books.find({"category_id": category_id})
-    #    print("specific category given")
+   
     elif category_id == "":
         books=mongo.db.books.find()
-    #    print("no category given")
     
     #Populate new dictionary with results from book collection retrieval
     for book in books:
@@ -69,57 +69,37 @@ def get_books(category_id):
                 else:
                     merged_result[book_id]["category_name"] = merged_result[book_id].pop("category_id")
                     merged_result[book_id]["category_name"] = "Not assigned yet"
-                    
-#            elif key == "user_id":
-#                the_user=mongo.db.users.find_one({"_id": ObjectId(value)})
-#                merged_result[book_id]["username"] = merged_result[book_id].pop("user_id")
-#                for k, v in the_user.items():
-#                    if k == "username":
-#                        merged_result[book_id]["username"] = the_user[k]
             else:
                 pass
     
     return render_template("books.html", books=merged_result, categories=mongo.db.categories.find())
+
 
 @app.route("/get_book/<book_id>")
 def get_book(book_id):
     """
     Function to get individual book details and render to html
     """
+    
     the_book = mongo.db.books.find_one({"_id": ObjectId(book_id)})
     the_review =mongo.db.reviews.find_one({"book_id" : book_id})
-#   
-#    print("The Book: ")
-#    print(the_book)
-#    print("")
-#    all_categories = mongo.db.categories.find()
-#    print("All Categories: ")
-#    print(all_categories)
-#    print("")
+    the_comments = mongo.db.comments.find({"book_id" : book_id})
+    the_commenters = list(mongo.db.users.find())
+
     for book_k, book_v in the_book.items():
         if book_k == 'category_id' and book_v != "":    
             the_category = mongo.db.categories.find_one({"_id" : ObjectId(book_v)})
-            if the_category != None:    
-#                print("The Category: ")
-                print(the_category)
-#                print("")
-            else:
+            if the_category == None:    
                 the_category = {
                     "category_name" : "Not assigned yet"
                 }
-        
         elif book_k == 'category_id' and book_v == "":
             the_category = {
                 "category_name" : "Not assigned yet"
             }
-                
         elif book_k == 'user_id' and book_v != "":
             the_user = mongo.db.users.find_one({"_id" : ObjectId(book_v)})
-            if the_user != None:
-#                print("The User: ")
-                print(the_user)
-#                print("")
-            else:
+            if the_user == None:
                 the_user = {
                     "username" : "Anonymous"
                 }
@@ -132,12 +112,6 @@ def get_book(book_id):
         for review_k, review_v in the_review.items():
             if review_k == 'user_id':
                 the_reviewer = mongo.db.users.find_one({"_id" : ObjectId(review_v)})
-#                print("The Review: ")
-                print(the_review)
-#                print("")
-#                print("The Reviewer: ")
-                print(the_reviewer)
-#                print("")
     else:
         the_review = {
             "review" : "Not reviewed yet",
@@ -147,16 +121,8 @@ def get_book(book_id):
             "username" : "No reviewer yet"
         }
     
-#    print("The Book: ")
-#    print(the_book)
-#    print("")
-#   all_users = mongo.db.users.find()
-    the_comments = mongo.db.comments.find({"book_id" : book_id})
-#    the_comments = get_comments(book_id)
-    
-    the_commenters = list(mongo.db.users.find())
-    
-    return render_template("book.html", book=the_book, category=the_category, user=the_user, comments=the_comments, review=the_review, reviewer=the_reviewer, commenters = the_commenters)
+    return render_template("book.html", book=the_book, category=the_category, user=the_user, comments=the_comments, review=the_review, reviewer=the_reviewer, commenters=the_commenters)
+
 
 @app.route("/add_book", methods=["GET", "POST"])
 def add_book():
@@ -167,15 +133,10 @@ def add_book():
     https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
     """
     
-    
     form = AddBookForm()
     
     if form.validate_on_submit():
         flash(f"Book added to site: {form.title.data.title()}!", "success")
-   #     print("Add Book Function>")
-    #    print("Form validation success")
-     #   print("Errors: " + str(form.errors))
-      #  print("Form data: " + str(form.title.data))
         
         book = {
             "title" : form.title.data.lower(),
@@ -190,38 +151,12 @@ def add_book():
             "csrf_token" : form.csrf_token.data 
         }
         
-        #print(book)
-        
         books = mongo.db.books
         books.insert_one(book)
         
         return redirect(url_for("get_books"))
     else:
-    #    print("Add Book Function>")
-    #    print("Form validation unsuccessful")
-    #    print("Errors: " + str(form.errors))
-    #    print("Form: " + str(form))
         return render_template("addbook.html", form=form, categories=mongo.db.categories.find())
-
-    #old code below
-    #form = AddBookForm()
-    #if form.validate_on_submit():
-    #    flash(f"Book added to site!", "success")
-    #    return redirect(url_for("get_books"))
-    #return render_template("addbook.html", form=form, categories=mongo.db.categories.find())
-    #end of old code
-
-######## 
-#remove this function, no longer required
-#@app.route("/insert_book", methods=["POST"])
-#def insert_book():
-#    """
-#    Function to insert a book into the database
-#    """
-#    books = mongo.db.books
-#    books.insert_one(request.form.to_dict())
-#    return redirect(url_for("get_books"))
-#########
 
 
 @app.route("/edit_book/<book_id>")
@@ -230,22 +165,16 @@ def edit_book(book_id):
     Function to load form for a book review and render to html
     """
     
-    """
-    TO DO: add functionality to only edit book review if same poster
-    """
-    
     the_book = mongo.db.books.find_one({"_id": ObjectId(book_id)})
     all_categories = mongo.db.categories.find()
+    
     return render_template("editbook.html", book=the_book, categories=all_categories)
+
 
 @app.route("/update_book/<book_id>", methods=["POST"])
 def update_book(book_id):
     """
     Function to update database with revised book review information
-    """
-    
-    """
-    TO DO: add additional items for complete record
     """
     
     books = mongo.db.books
@@ -257,20 +186,24 @@ def update_book(book_id):
         "category_id" : request.form.get("category_id"),
         "review" : request.form.get("review")
     })
+    
     return redirect(url_for("get_books"))
+
 
 @app.route("/delete_book/<book_id>")
 def delete_book(book_id):
     """
     Function to delete a book from the database
     """
+    
     mongo.db.books.remove({"_id" : ObjectId(book_id)})
+    
     return redirect(url_for("get_books"))
+
 
 """
 Management (CRUD) of reviews collection in database
 """  
-
 @app.route("/check_review_exists/<book_id>")
 def check_review_exists(book_id):
     """
@@ -279,18 +212,10 @@ def check_review_exists(book_id):
     
     a_review=mongo.db.reviews.find_one({"book_id" : book_id})
     
-#   print("Search match")
-#    print(book_id)
-#    print(a_review)
-    
     if a_review != None:
-#        print("Review found--> ")
-#        print(a_review)
         flash(f"A review already exists for the book", "warning")
         return redirect(url_for('get_book', book_id=book_id))
     else:
-#        print("Review does not exist-->")
-#        print(a_review)
         return redirect(url_for("add_review", book_id=book_id))
     
     flash(f"Oops, something went wrong!", "danger")
@@ -309,10 +234,6 @@ def add_review(book_id):
     
     if form.validate_on_submit():
         flash(f"New review uploaded!", "success")
-#        print("Add Review Function>")
-#        print("Form validation success")
-#        print("Errors: " + str(form.errors))
-#        print("Form data: " + str(form.review.data))
         
         review = {
             "review" : form.review.data,
@@ -322,23 +243,17 @@ def add_review(book_id):
             "csrf_token" : form.csrf_token.data 
         }
         
-#        print(review)
-        
         reviews = mongo.db.reviews
         reviews.insert_one(review)
         
         return redirect(url_for("get_book", book_id=book_id))
         
     else:
-#        print("Add Review Function>")
-#        print("Form validation unsuccessful")
-#        print("Errors: " + str(form.errors))
-#        print("Form: " + str(form))
-#        print("Book_ID: " + str(book_id))
         return render_template("addreview.html", form=form, book_id=book_id)
         
     flash(f"Oops, something went wrong!", "danger")
     return redirect(url_for('get_book', book_id=book_id))
+
 
 """
 Management (CRUD) of categories collection in database
@@ -348,7 +263,9 @@ def get_categories():
     """
     Function to fetch categories from database and render to html
     """
+    
     return render_template("categories.html", categories=mongo.db.categories.find())
+
 
 @app.route("/add_category", methods=["GET","POST"])
 def add_category():
@@ -363,10 +280,6 @@ def add_category():
     
     if form.validate_on_submit():
         flash(f"New category created: {form.category_name.data}!", "success")
-    #    print("Add Category Function>")
-    #    print("Form validation success")
-    #    print("Errors: " + str(form.errors))
-    #    print("Form data: " + str(form.category_name.data))
         
         category = {
             "category_name" : form.category_name.data.lower(),
@@ -374,125 +287,55 @@ def add_category():
             "csrf_token" : form.csrf_token.data 
         }
         
-    #    print(category)
-        
         categories = mongo.db.categories
         categories.insert_one(category)
         
         return redirect(url_for("get_categories"))
-    else:
-    #    print("Add Category Function>")
-    #    print("Form validation unsuccessful")
-    #    print("Errors: " + str(form.errors))
-    #    print("Form: " + str(form))
-        return render_template("addcategory.html", form=form)
     
-    """
-    old code, remove
-    form = AddCategoryForm()
-    if form.validate_on_submit():
-        flash(f"Category added to site!", "success")
-        return redirect(url_for("get_categories"))
-    return render_template("addcategory.html", form=form)
-    end of old code
-    """
-##########
-#remove function not required anymore
-#@app.route("/insert_category", methods=["POST"])
-#def insert_category():
-#    """
-#    Function to insert a category into the database
-#    """
-#    categories = mongo.db.categories
-#    categories.insert_one(request.form.to_dict())
-#    return redirect(url_for("get_categories"))
-###########
-
-
+    else:
+        return render_template("addcategory.html", form=form)
+   
+ 
 @app.route("/edit_category/<category_id>")
 def edit_category(category_id):
     """
     Function to load form for a category to be changed and render to html
     """
+    
     the_category = mongo.db.categories.find_one({"_id": ObjectId(category_id)})
+    
     return render_template("editcategory.html", category=the_category)
+
 
 @app.route("/update_category/<category_id>", methods=["POST"])
 def update_category(category_id):
     """
     Function to update database with revised category information
     """
+    
     categories = mongo.db.categories
     categories.update({"_id": ObjectId(category_id)},
     {
         "category_name" : request.form.get("category_name")
     })
+    
     return redirect(url_for("get_categories"))
+
 
 @app.route("/delete_category/<category_id>")
 def delete_category(category_id):
     """
     Function to delete a category from the database
     """
+    
     mongo.db.categories.remove({"_id" : ObjectId(category_id)})
+    
     return redirect(url_for("get_categories"))
 
 
 """
 Management (CRUD) of comments collection in database
 """    
-
-@app.route("/get_comments/<book_id>")
-def get_comments(book_id):
-    """
-    Function to fetch comments from database and render to html
-    """
-    
-    the_comments = mongo.db.comments.find({"book_id" : book_id})
-    the_commenters = mongo.db.users.find()
-    users = list(the_commenters)
-    
-    print("#####################################################")
-    print("Printing the_commenters from the get_comment function")
-    for commenter in the_commenters:
-        print(commenter)
-        print("")
-    
-    print("#####################################################")
-    print("Printing users from the get_comment function")
-    for user in users:
-        print(user)
-        print("")
-    
-    
-    print("Printing the comments from get_comment function")
-    for comment in the_comments:
-        for comment_k, comment_v in comment.items():
-            print("comment_k: " + str(comment_k) + " comment_v: " + str(comment_v))
-            if comment_k == 'user_id' and comment_v != "":
-                print("User ID: " + str(comment_v))
-                the_user = mongo.db.users.find_one({"_id" : ObjectId(comment_v)})
-                for user_k, user_v in the_user.items():
-                    if user_k == "username" and user_v != "":
-                        comment = { "username" : user_v }
-                        print("Username: " + str(user_v))
-                        print("comment:" + str(comment))
-                    else:
-                        comment = {"username" : "Anonymous commenter 1" }
-            else:
-                comment = {"username" : "Anonymous commenter 2"}
-            print("")
-    
-    
-    print("#####################################################")
-    print("Printing the comments from the get_comment function")
-    for comment in the_comments:
-        for comment_k, comment_v in comment:
-            print("Comment k: " + str(comment_k) + " Comment v: " + str(comment_v))
-            print("")
-    
-    return the_comments
-
 @app.route("/add_comment/<book_id>", methods=["GET", "POST"])
 def add_comment(book_id):
     """
@@ -503,16 +346,9 @@ def add_comment(book_id):
     """
     
     form = AddCommentForm()
-    #the_book = mongo.db.books.find_one({"_id" : ObjectId(book_id)})
-#    print("Book_ID: " + str(book_id))
-    #print(the_book)
     
     if form.validate_on_submit():
         flash(f"New comment posted!", "success")
-#        print("Add Comment Function>")
-#        print("Form validation success")
-#        print("Errors: " + str(form.errors))
-#        print("Form data: " + str(form.comment.data))
         
         comment = {
             "comment" : form.comment.data.lower(),
@@ -521,53 +357,14 @@ def add_comment(book_id):
             "csrf_token" : form.csrf_token.data 
         }
         
-#        print(comment)
-        
-        
         comments = mongo.db.comments
         comments.insert_one(comment)
         
         return redirect(url_for("get_book", book_id=book_id))
         
     else:
-#        print("Add Comment Function>")
-#        print("Form validation unsuccessful")
-#        print("Errors: " + str(form.errors))
-#        print("Form: " + str(form))
-#        print("Book_ID: " + str(book_id))
         return render_template("addcomment.html", form=form, book_id=book_id)
-    
 
-    
-    
-    
-    """"
-    old code, remove if functioning
-    form = AddCommentForm()
-    the_book = mongo.db.books.find_one({"_id" : ObjectId(book_id)})
-    if form.validate_on_submit():
-        flash(f"Comment added for book!", "success")
-        return redirect(url_for("get_book(book_id)"))
-    return render_template("addcomment.html", form=form, book=the_book)
-    end of old code
-    """
-
-##########
-#remove function not required any more
-#@app.route("/insert_comment/<book_id>", methods=["POST"])
-#def insert_comment(book_id):
-#    """
-#    Function to insert a comment into the database
-#    """
-#    
-#    comment = request.form.to_dict()
-#    comment["book_id"] = book_id
-#    
-#    comments = mongo.db.comments
-#    comments.insert_one(comment)
-#    
-#    return redirect(url_for('get_book', book_id=book_id))
-#############3
 
 """
 Management (CRUD) of users collection in database
@@ -577,6 +374,7 @@ def get_users():
     """
     Function to fetch users from database and render to html
     """
+    
     return render_template("users.html", users=mongo.db.users.find())
 
 
@@ -592,10 +390,6 @@ def add_user():
     
     if form.validate_on_submit():
         flash(f"Account created for {form.username.data}!", "success")
-        #print("Add User Function>")
-        #print("Form validation success")
-        #print("Errors: " + str(form.errors))
-        #print("Form data: " + str(form.username.data))
         
         user = {
             "fname" : form.fname.data.lower(),
@@ -606,42 +400,13 @@ def add_user():
             "csrf_token" : form.csrf_token.data 
         }
         
-        #print(user)
-        
         users = mongo.db.users
         users.insert_one(user)
         
         return redirect(url_for("home_screen"))
     else:
-        #print("Add User Function>")
-        #print("Form validation unsuccessful")
-        #print("Errors: " + str(form.errors))
-        #print("Form: " + str(form))
+        
         return render_template("adduser.html", form=form)
-
-#####################
-# remove insert function below, as it is dealt with through the add user function
-#@app.route("/insert_user/<form>", methods=["GET","POST"])
-#def insert_user(form):
-#    """
-#    Function to insert a new user into the database
-#    """
-#    #user={
-#    #    "username" : form.username.data,
-#    #    "fname" : form.fname.data,
-#   #    "lname" : form.lname.data,
-#    #    }
-#    
-#    #users = mongo.db.users
-#    #users.insert_one(user)
-#    print("Insert User Function>")
-#    print("Form data: " + str(form.username.data))
-#    for field in form:
-#        print(str(field))
-#    #print("User: " + str(user))
-#    
-#    return redirect(url_for("home_screen"))
-####################
 
 
 @app.route("/login_user", methods=["GET", "POST"])
@@ -653,19 +418,25 @@ def login_user():
     https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
     """
     form = LogInForm()
+   
     if form.validate_on_submit():
         flash(f"Log in successful!", "success")
         return redirect(url_for("home_screen"))
+    
     else:
         flash(f"Log in unsuccessful!", "danger")
+    
     return render_template("loginuser.html", form=form)
+
 
 @app.route("/edit_user/<user_id>")
 def edit_user(user_id):
     """
     Function to load form for a user to be editted and render to html
     """
+    
     the_user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
+    
     return render_template("edituser.html", user=the_user)
     
 @app.route("/update_user/<user_id>", methods=["POST"])
@@ -673,6 +444,7 @@ def update_user(user_id):
     """
     Function to update database with revised user information
     """
+    
     users = mongo.db.users
     users.update({"_id": ObjectId(user_id)},
     {
@@ -683,14 +455,18 @@ def update_user(user_id):
         "username" : request.form.get("username"),
         "password" : request.form.get("password")
     })
+    
     return redirect(url_for("get_users"))
+
 
 @app.route("/delete_user/<user_id>")
 def delete_user(user_id):
     """
     Function to delete a user from the database
     """
+    
     mongo.db.users.remove({"_id" : ObjectId(user_id)})
+   
     return redirect(url_for("get_users"))
 
 if __name__ == "__main__":
