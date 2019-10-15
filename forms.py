@@ -15,7 +15,6 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 
-
 """
 Form classes for various forms used
 """
@@ -24,13 +23,14 @@ class RegistrationForm(FlaskForm):
     """
     Form to capture and validate registration of users
     """
-    fname = StringField("First Name", validators=[DataRequired(), Length(min=1)])
-    lname = StringField("Surname", validators=[DataRequired(), Length(min=1)])
+    fname = StringField("First Name", validators=[DataRequired(), Length(min=2)])
+    lname = StringField("Surname", validators=[DataRequired(), Length(min=2)])
     email = StringField("Email", validators=[DataRequired(), Email()])
     username = StringField("Username", validators=[DataRequired(), Length(min=2, max=30)])
     password = PasswordField("Password", validators=[DataRequired(), Length(min=8, max=16)])
     confirm_password = PasswordField("Confirm Password", validators=[DataRequired(), EqualTo("password")])
-                            
+    
+
 class LogInForm(FlaskForm):
     """
     Form to capture and validate log in of users
@@ -42,9 +42,12 @@ class LogInForm(FlaskForm):
     remember_me = BooleanField("Remember Me")
     submit = SubmitField("Log In")
 
+
 class AddBookForm(FlaskForm):
     """
     Form to capture and validate new book to add
+    
+    up_votes and down_votes and date_added are set within the add_book function
     """
     title = StringField("Title:", 
                         validators=[DataRequired(), Length(min=1)])
@@ -58,6 +61,7 @@ class AddBookForm(FlaskForm):
     cover_url = StringField("Cover Link", 
                                 validators=[DataRequired(), Length(min=2)])
     
+
 class AddCategoryForm(FlaskForm):
     """
     Form to capture and validate new category to add
@@ -67,16 +71,22 @@ class AddCategoryForm(FlaskForm):
     cover_url = StringField("Cover Link", 
                             validators=[DataRequired(), Length(min=2)])
     
+
 class AddCommentForm(FlaskForm):
     """
     Form to capture and validate new comment to add
+    
+    book_id is assigned within the function add_book
     """
     comment = StringField("Comment", validators=[DataRequired(), Length(min=2, max=140)])
     user_id = StringField("UserId", validators=[DataRequired(), Length(min=10)])
 
+
 class AddReviewForm(FlaskForm):
     """
     Form to capture and validate new review to add
+    
+    book_id is assigned within the function add_review
     """
     review = StringField("Review", validators=[DataRequired(), Length(min=10, max=1000)])
     user_id = StringField("UserId", validators=[DataRequired(), Length(min=10)])

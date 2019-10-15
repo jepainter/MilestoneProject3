@@ -51,6 +51,11 @@
                                 <span>{{ error }}</span>
                             {% endfor %}
                         </div>
+                    {% elif email_error %}
+                        {{ form.email(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            <span>{{ email_error }}</span>
+                        </div>
                     {% else %}
                         {{ form.email(class="form-control", placeholder="Enter your email address (jsmith@example.com)...") }}
                     {% endif %}
@@ -63,6 +68,11 @@
                             {% for error in form.username.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
+                        </div>
+                    {% elif username_error %}
+                        {{ form.username(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            <span>{{ username_error }}</span>
                         </div>
                     {% else %}
                         {{ form.username(class="form-control", placeholder="Enter your username...") }}

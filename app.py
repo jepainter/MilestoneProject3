@@ -5,6 +5,7 @@ import os
 from datetime import date
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_pymongo import PyMongo
+from flask_bcrypt import Bcrypt
 from bson.objectid import ObjectId
 from forms import RegistrationForm, LogInForm, AddBookForm, AddCategoryForm, AddCommentForm, AddReviewForm
 
@@ -15,8 +16,8 @@ MONGODB_URI = os.getenv("MONGO_URI")
 app.config["MONGO_URI"] = os.getenv("MONGO_URI")
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
-
 mongo = PyMongo(app)
+bcrypt = Bcrypt(app)
 
 @app.route("/", methods=["GET", "POST"])
 @app.route("/home_screen", methods=["GET", "POST"]) #remove this if not necessary, test first
@@ -201,6 +202,7 @@ def delete_book(book_id):
     return redirect(url_for("get_books"))
 
 
+
 """
 Management (CRUD) of reviews collection in database
 """  
@@ -377,6 +379,26 @@ def get_users():
     
     return render_template("users.html", users=mongo.db.users.find())
 
+def user_exists(search_type, user_detail):
+    """
+    Function to validate if username or email is already taken in database
+    """
+
+#    print("########################")
+#    print("User: " + str(user_detail))
+    
+    the_user = mongo.db.users.find_one({str(search_type): str(user_detail)})
+    
+#    print(the_user)
+    
+    if the_user != None:
+#        print("User found: " + str(user_detail))
+#        print(the_user)
+        return True
+    else:
+#        print("User not found")
+#        print(the_user)
+        return False
 
 @app.route("/add_user", methods=["GET","POST"])
 def add_user():
@@ -384,38 +406,63 @@ def add_user():
     Function to load WTForm for user registration and render to html, and write to database
     
     WTForms code adapted from Corey Shafer's tutorial found at
-    https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
+    https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3
+    
+    User authentication code adapted from from Corey Shafer's tutorial found at
+    https://www.youtube.com/watch?v=CSHx6eCkmv0&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=6
     """
     form = RegistrationForm()
     
     if form.validate_on_submit():
-        flash(f"Account created for {form.username.data}!", "success")
+        
+        print("Username: " + str(form.username.data.lower()))
+        
+        username_exist = user_exists("username", form.username.data.lower())
+        email_exist = user_exists("email", form.email.data.lower())
+        if username_exist == True and email_exist == True:
+            username_error = "That username already exists.  Please choose a different one..."
+            email_error = "That email already exists.  Please choose a different one..."
+            return render_template("adduser.html", form=form, username_error=username_error, email_error=email_error)
+        elif username_exist == True and email_exist != True:
+            username_error = "That username already exists.  Please choose a different one..."
+            return render_template("adduser.html", form=form, username_error=username_error)
+        elif username_exist != True and email_exist == True:
+            email_error = "That email already exists.  Please choose a different one..."
+            return render_template("adduser.html", form=form, email_error=email_error)
+        
+        
+        hash_password = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
+        
+        flash(f"Account created for {form.username.data}! You are free to log in...", "success")
         
         user = {
             "fname" : form.fname.data.lower(),
             "lname" : form.lname.data.lower(),
             "email" : form.email.data.lower(),
             "username" : form.username.data.lower(),
-            "password" : form.password.data,
+            "password" : hash_password,
             "csrf_token" : form.csrf_token.data 
         }
         
         users = mongo.db.users
         users.insert_one(user)
         
-        return redirect(url_for("home_screen"))
+        return redirect(url_for("login_user"))
     else:
         
         return render_template("adduser.html", form=form)
 
 
-@app.route("/login_user", methods=["GET", "POST"])
+@app.route("/login_user", methods=["GET","POST"])
 def login_user():
     """
     Function to load WTForm for user log in and render to html
     
     WTForms code adapted from Corey Shafer's tutorial found at
     https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
+    
+    User authentication code adapted from from Corey Shafer's tutorial found at
+    https://www.youtube.com/watch?v=CSHx6eCkmv0&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=6
     """
     form = LogInForm()
    
@@ -425,8 +472,7 @@ def login_user():
     
     else:
         flash(f"Log in unsuccessful!", "danger")
-    
-    return render_template("loginuser.html", form=form)
+        return render_template("loginuser.html", form=form)
 
 
 @app.route("/edit_user/<user_id>")
