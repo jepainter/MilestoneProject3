@@ -3,10 +3,9 @@ Imports of packages for functioning of site
 """
 import os
 from datetime import date
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_pymongo import PyMongo
 from flask_bcrypt import Bcrypt
-from flask_login import LoginManager, UserMixin, login_user
 from bson.objectid import ObjectId
 from forms import RegistrationForm, LogInForm, AddBookForm, AddCategoryForm, AddCommentForm, AddReviewForm
 
@@ -19,15 +18,14 @@ app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
 mongo = PyMongo(app)
 bcrypt = Bcrypt(app)
-login_manager = LoginManager(app)
 
-@app.route("/", methods=["GET", "POST"])
-@app.route("/home_screen", methods=["GET", "POST"]) #remove this if not necessary, test first
+@app.route("/", methods=["GET"])
+@app.route("/home_screen", methods=["GET"]) #remove this if not necessary, test first
 def home_screen():
     """
     Function for rendering landing page
     """
-    
+    session["user"] = "Jonathan"
     return render_template("index.html", categories=mongo.db.categories.find())
 
 
@@ -456,32 +454,33 @@ def add_user():
         return render_template("adduser.html", form=form)
 
 
-@login_manager.user_loader
-def load_user(user_id):
-    """
-    Function to manage loading of users as part of login_manager
-    
-    Code adapted from Corey Shafer's tutorial found at
-    https://www.youtube.com/watch?v=CSHx6eCkmv0&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=6
-    """
-    
-    user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
-    
-    return user 
+#@login_manager.user_loader
+#def load_user(user_id):
+#    """
+#    Function to manage loading of users as part of login_manager
+#    
+#    Code adapted from Corey Shafer's tutorial found at
+#    https://www.youtube.com/watch?v=CSHx6eCkmv0&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=6
+#    """
+#    
+#    the_user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
+#    
+#    return the_user 
 
 
-@app.route("/login_user", methods=["GET","POST"])
-def login_user():
+@app.route("/log_user_in", methods=["GET","POST"])
+def log_user_in():
     """
     Function to load WTForm for user log in and render to html
     
     WTForms code adapted from Corey Shafer's tutorial found at
     https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
     
-    User authentication code adapted from from Corey Shafer's tutorial found at
-    https://www.youtube.com/watch?v=CSHx6eCkmv0&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=6
+    Login functionality adapted from Pretty Printed's tutorial found at
+    https://www.youtube.com/watch?v=eBwhBrNbrNI
     """
     form = LogInForm()
+   
    
     if form.validate_on_submit():
         user = mongo.db.users.find_one({"email" : form.email.data.lower()})
@@ -496,10 +495,9 @@ def login_user():
                 print("")
                 if user and bcrypt.check_password_hash(v, form.password.data):
                     print("Password and email successfull")
-                    #login_user(user, remember=form.remember_me.data)
                     return redirect(url_for('home_screen'))
                 else:
-                    flash(f"Log in unsuccessful!", "danger")
+                    flash(f"Log in unsuccessful!  Check your email and password.", "danger")
     
     return render_template("loginuser.html", form=form)
     
@@ -544,6 +542,19 @@ def delete_user(user_id):
     mongo.db.users.remove({"_id" : ObjectId(user_id)})
    
     return redirect(url_for("get_users"))
+
+
+@app.route("/get_session")
+def get_session():
+    if "user" in session:
+        return session["user"]
+    return "Not logged in"
+
+@app.route("/close_session")
+def close_session():
+    session.pop("user", None)
+    return "Dropped session"
+
 
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),
