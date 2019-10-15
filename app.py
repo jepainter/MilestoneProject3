@@ -3,7 +3,7 @@ Imports of packages for functioning of site
 """
 import os
 from datetime import date
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, g
 from flask_pymongo import PyMongo
 from flask_bcrypt import Bcrypt
 from bson.objectid import ObjectId
@@ -25,7 +25,6 @@ def home_screen():
     """
     Function for rendering landing page
     """
-    session["user"] = "Jonathan"
     return render_template("index.html", categories=mongo.db.categories.find())
 
 
@@ -480,8 +479,20 @@ def log_user_in():
     https://www.youtube.com/watch?v=eBwhBrNbrNI
     """
     form = LogInForm()
+    
+    print("")
+    print("##########################")
+    print("Session User before pop:")
+#    print(session["user"])
    
-   
+    session.pop("user", None)
+    
+    print("")
+    print("##########################")
+    print("Session User after pop:")
+#    print(session["user"])
+    
+    
     if form.validate_on_submit():
         user = mongo.db.users.find_one({"email" : form.email.data.lower()})
         print("")
@@ -495,9 +506,24 @@ def log_user_in():
                 print("")
                 if user and bcrypt.check_password_hash(v, form.password.data):
                     print("Password and email successfull")
-                    return redirect(url_for('home_screen'))
+                    session["user"] = form.email.data.lower()
+                    print("")
+                    print("##########################")
+                    print("Session User after setting in login:")
+                    print(session["user"])
+                    
+                    return redirect(url_for('protected'))
                 else:
                     flash(f"Log in unsuccessful!  Check your email and password.", "danger")
+                    print("")
+                    print("##########################")
+                    print("Session User after unsuccessful login:")
+                    #print(session["user"])
+    
+    print("")
+    print("##########################")
+    print("Session User after unsucessful validate in login:")
+    #print(session["user"])
     
     return render_template("loginuser.html", form=form)
     
@@ -554,6 +580,20 @@ def get_session():
 def close_session():
     session.pop("user", None)
     return "Dropped session"
+
+
+@app.route("/protected")
+def protected():
+    if g.user:
+        return render_template("protected.html")
+    
+    return redirect("log_user_in")
+
+@app.before_request
+def before_request():
+    g.user = None
+    if "user" in session:
+        g.user = session["user"]
 
 
 if __name__ == "__main__":
