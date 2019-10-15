@@ -6,6 +6,7 @@ from datetime import date
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_pymongo import PyMongo
 from flask_bcrypt import Bcrypt
+from flask_login import LoginManager, UserMixin, login_user
 from bson.objectid import ObjectId
 from forms import RegistrationForm, LogInForm, AddBookForm, AddCategoryForm, AddCommentForm, AddReviewForm
 
@@ -18,6 +19,7 @@ app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
 mongo = PyMongo(app)
 bcrypt = Bcrypt(app)
+login_manager = LoginManager(app)
 
 @app.route("/", methods=["GET", "POST"])
 @app.route("/home_screen", methods=["GET", "POST"]) #remove this if not necessary, test first
@@ -206,6 +208,8 @@ def delete_book(book_id):
 """
 Management (CRUD) of reviews collection in database
 """  
+
+
 @app.route("/check_review_exists/<book_id>")
 def check_review_exists(book_id):
     """
@@ -222,6 +226,7 @@ def check_review_exists(book_id):
     
     flash(f"Oops, something went wrong!", "danger")
     return redirect(url_for('get_book', book_id=book_id))
+
 
 @app.route("/add_review/<book_id>", methods=["GET", "POST"])
 def add_review(book_id):
@@ -260,6 +265,8 @@ def add_review(book_id):
 """
 Management (CRUD) of categories collection in database
 """
+
+
 @app.route("/get_categories")
 def get_categories():
     """
@@ -338,6 +345,8 @@ def delete_category(category_id):
 """
 Management (CRUD) of comments collection in database
 """    
+
+
 @app.route("/add_comment/<book_id>", methods=["GET", "POST"])
 def add_comment(book_id):
     """
@@ -371,6 +380,8 @@ def add_comment(book_id):
 """
 Management (CRUD) of users collection in database
 """
+
+
 @app.route("/get_users")
 def get_users():
     """
@@ -383,22 +394,14 @@ def user_exists(search_type, user_detail):
     """
     Function to validate if username or email is already taken in database
     """
-
-#    print("########################")
-#    print("User: " + str(user_detail))
     
     the_user = mongo.db.users.find_one({str(search_type): str(user_detail)})
     
-#    print(the_user)
-    
     if the_user != None:
-#        print("User found: " + str(user_detail))
-#        print(the_user)
         return True
     else:
-#        print("User not found")
-#        print(the_user)
         return False
+
 
 @app.route("/add_user", methods=["GET","POST"])
 def add_user():
@@ -453,6 +456,20 @@ def add_user():
         return render_template("adduser.html", form=form)
 
 
+@login_manager.user_loader
+def load_user(user_id):
+    """
+    Function to manage loading of users as part of login_manager
+    
+    Code adapted from Corey Shafer's tutorial found at
+    https://www.youtube.com/watch?v=CSHx6eCkmv0&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=6
+    """
+    
+    user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
+    
+    return user 
+
+
 @app.route("/login_user", methods=["GET","POST"])
 def login_user():
     """
@@ -467,13 +484,25 @@ def login_user():
     form = LogInForm()
    
     if form.validate_on_submit():
-        flash(f"Log in successful!", "success")
-        return redirect(url_for("home_screen"))
+        user = mongo.db.users.find_one({"email" : form.email.data.lower()})
+        print("")
+        print("User: ")
+        print(user)
+        print("")
+        print("User Password: ")
+        for k, v in user.items():
+            if k == "password":
+                print(v)
+                print("")
+                if user and bcrypt.check_password_hash(v, form.password.data):
+                    print("Password and email successfull")
+                    #login_user(user, remember=form.remember_me.data)
+                    return redirect(url_for('home_screen'))
+                else:
+                    flash(f"Log in unsuccessful!", "danger")
     
-    else:
-        flash(f"Log in unsuccessful!", "danger")
-        return render_template("loginuser.html", form=form)
-
+    return render_template("loginuser.html", form=form)
+    
 
 @app.route("/edit_user/<user_id>")
 def edit_user(user_id):
@@ -485,6 +514,7 @@ def edit_user(user_id):
     
     return render_template("edituser.html", user=the_user)
     
+
 @app.route("/update_user/<user_id>", methods=["POST"])
 def update_user(user_id):
     """
