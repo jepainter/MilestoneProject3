@@ -1,63 +1,100 @@
 {% extends "base.html" %} {% block content %}
-<div class="row justify-content-around">
-    <div class="col-10">
-        <h1>Edit Book Review</h1>
-        <p>This is the edit book review page</p>
+<section class="container-fluid"> 
+    <div class="row justify-content-around">
+        <div class="col-10">
+            <h1 class="fnt-clr-red">Edit Book Review</h1>
+            <p>This is the edit book review page</p>
+        </div>
     </div>
-</div>
 
-<div class="row justify-content-around">
-    <div class="col-10">
-        <form action="{{ url_for('update_book', book_id=book._id) }}" method="POST">
-            <legend>Edit a book review</legend>
-            <div class="form-group">
-                <label class="col-form-label" for="title">Title:</label>
-                <input type="text" class="form-control" placeholder="Enter the title of the book..." name="title" id="title" value="{{ book.title }}">
-            </div>
-            
-            <div class="form-group">
-                <label class="col-form-label" for="author_fname">Author First Name:</label>
-                <input type="text" class="form-control" placeholder="Enter the author's first name..." name="author_fname" id="author_fname" value="{{ book.author_fname }}">
-            </div>
-            
-            <div class="form-group">
-                <label class="col-form-label" for="author_lname">Author Surname:</label>
-                <input type="text" class="form-control" placeholder="Enter the author's surname..." name="author_lname" id="author_lname"value="{{ book.author_lname }}">
-            </div>
-            
-            <div class="form-group">
-                <label class="col-form-label" for="category">Category:</label>
-                <select class="form-control" name="categoryid" id="category">
-                    <option value="" disabled>Choose a category...</option>
-                    {% for category in categories %}
-                        {% if category._id == book.categoryid %}
-                            <option value="{{ category._id }}" selected>{{ category.category_name.capitalize() }}</option>
-                        {% else %}
-                            <option value="{{ category._id }}">{{ category.category_name.capitalize() }}</option>
-                        {% endif %}
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="review">Review:</label>
-                <textarea class="form-control" name="review" id="review" rows="5" placeholder="Enter your review here..." value="{{ book.review }}"></textarea>
-            </div>
-
-            <button type="submit" class="btn btn-primary">Submit Review</button>
-        </form>
+    <!-- Code adapted from Corey Shafer's tutorial found at
+    https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3-->
+    <div class="row justify-content-around">
+        <div class="col-10 bottom-margin">
+            <form action="{{ url_for('edit_book', book_id=book._id) }}" method="POST">
+                {{ form.hidden_tag() }}
+                <fieldset class="form-group">
+                <legend>Edit book details</legend>
+                <div class="form-group">
+                    {{ form.title.label(class="col-form-label") }}
+                    {% if form.title.errors %}
+                        {{ form.title(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.title.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.title(class="form-control", placeholder="Enter the title of the book...", value=book.title.title()) }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.author_fname.label(class="col-form-label") }}
+                    {% if form.author_fname.errors %}
+                        {{ form.author_fname(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.author_fname.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.author_fname(class="form-control", placeholder="Enter the author's first name...", value=book.author_fname.title()) }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.author_lname.label(class="col-form-label") }}
+                    {% if form.author_lname.errors %}
+                        {{ form.author_lname(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.author_lname.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.author_lname(class="form-control", placeholder="Enter the author's surname...", value=book.author_lname.title()) }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.category_id.label(class="col-form-label") }}
+                    <select class="form-control" name="category_id" id="category">
+                        <option value="" disabled>Choose a category...</option>
+                    {% if form.category_id.errors %}
+                        {{ form.category_id(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.category_id.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {% for category in categories %}
+                            {% if category._id|string() == book.category_id|string() %}
+                                <option value="{{ category._id }}" selected>{{ category.category_name.title() }}</option>
+                            {% else %}
+                                <option value="{{ category._id }}">{{ category.category_name.title() }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    {{ form.cover_url.label(class="col-form-label") }}
+                    {% if form.cover_url.errors %}
+                        {{ form.cover_url(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.cover_url.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.cover_url(class="form-control", placeholder="Enter the cover link...", value=book.cover_url) }}
+                    {% endif %}
+                </div>
+                </fieldset>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Update Book</button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
-
-<div class="row justify-content-around">
-    <div class="col-10">
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptates vitae aliquid, impedit dignissimos facere voluptate. Omnis vitae, quaerat libero blanditiis culpa cumque quas consequuntur ad soluta. Tempora obcaecati, ex incidunt a reiciendis
-            expedita eaque id facere molestiae nesciunt architecto commodi maiores quam. Earum a libero officiis natus temporibus blanditiis ut, dolores distinctio esse et eligendi corporis eos iste. Perspiciatis itaque, vero maxime fugit excepturi perferendis
-            nam obcaecati, possimus cum. Cumque ipsum laudantium unde possimus animi. Dolorum excepturi, doloremque provident. Quos, error provident saepe ducimus dolores quibusdam quo cupiditate magnam quod eius, tempora vel quas beatae nisi amet voluptas
-            ratione, deleniti officia debitis, et. Dolore et perferendis quas praesentium doloribus velit reprehenderit voluptatem laudantium atque illo! Sunt voluptas repellat at impedit delectus nostrum soluta magnam sequi. Iste ab dicta porro sequi
-            nostrum assumenda aperiam dolor quas mollitia enim dolores molestiae asperiores doloremque labore explicabo, nisi hic repudiandae itaque. Voluptas, asperiores officiis sint doloribus commodi, rerum tenetur labore architecto perspiciatis impedit
-            blanditiis consequatur ullam, veritatis nisi necessitatibus aliquam deserunt quam ducimus, at tempora deleniti saepe porro cumque! Architecto neque officiis modi dolor deserunt dignissimos, praesentium voluptas, nulla ducimus odio a! Inventore
-            blanditiis optio ea ratione a cum maiores aliquam vel nobis neque?</p>
-    </div>
-</div>
+</section>
 {% endblock %}

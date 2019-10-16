@@ -166,63 +166,47 @@ def add_book():
         return redirect(url_for("log_user_in"))
     
 
-"""    
-    form = AddBookForm()
-    
-    if form.validate_on_submit():
-        flash(f"Book added to site: {form.title.data.title()}!", "success")
-        
-        book = {
-            "title" : form.title.data.lower(),
-            "author_fname" : form.author_fname.data.lower(),
-            "author_lname" : form.author_lname.data.lower(),
-            "category_id" : form.category_id.data,
-            "user_id" : form.user_id.data,
-            "up_votes" : 0,
-            "down_votes" : 0,
-            "date_added" : date.today().strftime("%Y/%m/%d"),
-            "cover_url" : form.cover_url.data,
-            "csrf_token" : form.csrf_token.data 
-        }
-        
-        books = mongo.db.books
-        books.insert_one(book)
-        
-        return redirect(url_for("get_books"))
-    else:
-        return render_template("addbook.html", form=form, categories=mongo.db.categories.find())
-"""
-
-@app.route("/edit_book/<book_id>")
+@app.route("/edit_book/<book_id>", methods=["GET", "POST"])
 def edit_book(book_id):
     """
-    Function to load form for a book review and render to html
+    Function to load form for a book review and render to html. Checks first
+    whether a user is logged in, before performing function.
     """
     
-    the_book = mongo.db.books.find_one({"_id": ObjectId(book_id)})
-    all_categories = mongo.db.categories.find()
+    if g.user:
+        form = BookForm()
+        the_book = mongo.db.books.find_one({"_id": ObjectId(book_id)})
+        all_categories = mongo.db.categories.find()
+        
+        if form.validate_on_submit():
+            flash(f"Book details successfully updated: {form.title.data.title()}!", "success")
+            
+            books = mongo.db.books
+            books.update({"_id": ObjectId(book_id)},
+            {
+                "title" : form.title.data.lower(),
+                "author_fname" : form.author_fname.data.lower(),
+                "author_lname" : form.author_lname.data.lower(),
+                "category_id" : form.category_id.data,
+                "user_id" : g.user,
+                "up_votes" : the_book["up_votes"],
+                "down_votes" : the_book["down_votes"],
+                "date_added" : date.today().strftime("%Y/%m/%d"),
+                "cover_url" : form.cover_url.data,
+                "csrf_token" : form.csrf_token.data 
+            })
+            
+            return redirect(url_for("get_book", book_id=book_id))
+        
+        else:
+            
+            print(the_book)
+            return render_template("editbook.html", book=the_book, categories=all_categories, form=form)
     
-    return render_template("editbook.html", book=the_book, categories=all_categories)
-
-
-@app.route("/update_book/<book_id>", methods=["POST"])
-def update_book(book_id):
-    """
-    Function to update database with revised book review information
-    """
+    else:
+        flash("You need to log in first...", "warning")
+        return redirect(url_for("log_user_in"))
     
-    books = mongo.db.books
-    books.update({"_id": ObjectId(book_id)},
-    {
-        "title" : request.form.get("title"),
-        "author_fname" : request.form.get("author_fname"),
-        "author_lname" : request.form.get("author_lname"),
-        "category_id" : request.form.get("category_id"),
-        "review" : request.form.get("review")
-    })
-    
-    return redirect(url_for("get_books"))
-
 
 @app.route("/delete_book/<book_id>")
 def delete_book(book_id):
