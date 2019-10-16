@@ -82,7 +82,7 @@ def get_book(book_id):
     """
     
     the_book = mongo.db.books.find_one({"_id": ObjectId(book_id)})
-    the_review =mongo.db.reviews.find_one({"book_id" : book_id})
+    the_review = mongo.db.reviews.find_one({"book_id" : book_id})
     the_comments = mongo.db.comments.find({"book_id" : book_id})
     the_commenters = list(mongo.db.users.find())
 
@@ -479,58 +479,49 @@ def log_user_in():
     https://www.youtube.com/watch?v=eBwhBrNbrNI
     """
     form = LogInForm()
-    
-#    print("")
-#    print("##########################")
-#    print("Session User before pop:")
-#    print(session["user"])
    
     session.pop("user", None)
     
-#    print("")
-#    print("##########################")
-#    print("Session User after pop:")
-#    print(session["user"])
     
     
     if form.validate_on_submit():
         user = mongo.db.users.find_one({"email" : form.email.data.lower()})
         if user!= None:
-            print("")
-            print("User: ")
-            print(user)
-            print("")
-            print("User Password: ")
+#            print("")
+#            print("User: ")
+#            print(user)
+#            print("")
+#            print("User Password: ")
             for k, v in user.items():
                 if k == "password":
-                    print(v)
-                    print("")
+#                    print(v)
+#                    print("")
                     if user and bcrypt.check_password_hash(v, form.password.data):
-                        print("Password and email successfull")
+#                        print("Password and email successfull")
                         session["user"] = str(user["_id"])
-                        print("")
-                        print("##########################")
-                        print("Session User after setting in login:")
-                        print(session)
-                        print("User_ID:" + str(user["_id"]))
+#                        print("")
+ #                       print("##########################")
+ #                       print("Session User after setting in login:")
+ #                       print(session)
+ #                       print("User_ID:" + str(user["_id"]))
                         
                         return redirect(url_for('home_screen'))
                     else:
                         flash(f"Log in unsuccessful!  Check your email and password.", "danger")
-                        print("")
-                        print("##########################")
-                        print("Session User after unsuccessful login:")
+ #                       print("")
+ #                       print("##########################")
+ #                       print("Session User after unsuccessful login:")
                         #print(session["user"])
         else:
             flash(f"Log in unsuccessful!  Check your email and password.", "danger")
-            print("")
-            print("##########################")
-            print("Session User after unsuccessful login:")
+#            print("")
+#            print("##########################")
+#            print("Session User after unsuccessful login:")
             #print(session["user"])
     
-    print("")
-    print("##########################")
-    print("Session User after unsucessful validate in login:")
+#    print("")
+#    print("##########################")
+#    print("Session User after unsucessful validate in login:")
     #print(session["user"])
     
     return render_template("loginuser.html", form=form)
@@ -572,35 +563,57 @@ def delete_user(user_id):
     """
     Function to delete a user from the database
     """
+    if g.user:
+        if g.user == user_id:
+            flash("User profile deleted", "success")
+            print("Removing user from db")
+            #mongo.db.users.remove({"_id" : ObjectId(user_id)})
+            return close_session()
+            
+        else:
+            flash("You cannot remove this user, you do not have the relevant privileges...", "danger")
+            print("User not removed, not same id")
+            
+        return redirect(url_for("get_users"))
     
-    mongo.db.users.remove({"_id" : ObjectId(user_id)})
+    else:
+        flash("You need to log in first...", "warning")
+        return redirect(url_for("log_user_in"))
    
-    return redirect(url_for("get_users"))
+#    return redirect(url_for("get_users"))
 
 
 @app.route("/get_session")
 def get_session():
+    """
+    Function to check session status
+    """
     if "user" in session:
         print("")
         print("##Get Session##")
         print("Session Active: ")
         print(session["user"])
+        print("User logged in.")
         return redirect(url_for('home_screen'))
     else:
         print("")
         print("##Get Session##")
         print("Session Not Active: ")
         print(session)
-        print("User not logged in!")
+        print("User NOT logged in!")
         return redirect(url_for('home_screen'))
 
 @app.route("/close_session")
 def close_session():
+    """
+    Function to force clossure of session
+    """
     session.pop("user", None)
     print("")
     print("##Close Session##")
     print("Session Closed: ")
     print(session)
+    print("User logged OUT!")
     return redirect(url_for('home_screen'))
 
 
@@ -608,8 +621,8 @@ def close_session():
 def protected():
     if g.user:
         return render_template("protected.html")
-    
-    return redirect("log_user_in")
+    flash("You need to log in first...", "warning")
+    return redirect(url_for("log_user_in"))
 
 @app.before_request
 def before_request():
