@@ -211,12 +211,30 @@ def edit_book(book_id):
 @app.route("/delete_book/<book_id>")
 def delete_book(book_id):
     """
-    Function to delete a book from the database
+    Function to delete a book from the database, checks whether user is logged
+    in and only allows user to delete own books submitted.
     """
+    if g.user:
+        the_book = mongo.db.books.find_one({"_id" : ObjectId(book_id)})
+        if g.user == the_book["user_id"]:
+            flash("Book deleted from site", "success")
+            mongo.db.books.remove({"_id" : ObjectId(book_id)})
+            return redirect(url_for('get_books'))
+            
+        else:
+            flash("You cannot delete this book, as it was uploaded by someone else...", "danger")
+            print("Book not removed, not same id")
+            return redirect(url_for("get_books"))
     
-    mongo.db.books.remove({"_id" : ObjectId(book_id)})
+    else:
+        flash("You need to log in first...", "warning")
+        return redirect(url_for("log_user_in"))
+ 
+ 
+        
+#    mongo.db.books.remove({"_id" : ObjectId(book_id)})
     
-    return redirect(url_for("get_books"))
+#    return redirect(url_for("get_books"))
 
 
 
