@@ -174,35 +174,41 @@ def edit_book(book_id):
     """
     
     if g.user:
-        form = BookForm()
-        the_book = mongo.db.books.find_one({"_id": ObjectId(book_id)})
-        all_categories = mongo.db.categories.find()
         
-        if form.validate_on_submit():
-            flash(f"Book details successfully updated: {form.title.data.title()}!", "success")
+        the_book = mongo.db.books.find_one({"_id": ObjectId(book_id)})
+        if g.user == the_book["user_id"]:
+            form = BookForm()
+            all_categories = mongo.db.categories.find()
             
-            books = mongo.db.books
-            books.update({"_id": ObjectId(book_id)},
-            {
-                "title" : form.title.data.lower(),
-                "author_fname" : form.author_fname.data.lower(),
-                "author_lname" : form.author_lname.data.lower(),
-                "category_id" : form.category_id.data,
-                "user_id" : g.user,
-                "up_votes" : the_book["up_votes"],
-                "down_votes" : the_book["down_votes"],
-                "date_added" : date.today().strftime("%Y/%m/%d"),
-                "cover_url" : form.cover_url.data,
-                "csrf_token" : form.csrf_token.data 
-            })
+            if form.validate_on_submit():
+                flash(f"Book details successfully updated: {form.title.data.title()}!", "success")
+                
+                books = mongo.db.books
+                books.update({"_id": ObjectId(book_id)},
+                {
+                    "title" : form.title.data.lower(),
+                    "author_fname" : form.author_fname.data.lower(),
+                    "author_lname" : form.author_lname.data.lower(),
+                    "category_id" : form.category_id.data,
+                    "user_id" : g.user,
+                    "up_votes" : the_book["up_votes"],
+                    "down_votes" : the_book["down_votes"],
+                    "date_added" : date.today().strftime("%Y/%m/%d"),
+                    "cover_url" : form.cover_url.data,
+                    "csrf_token" : form.csrf_token.data 
+                })
+                
+                return redirect(url_for("get_book", book_id=book_id))
             
-            return redirect(url_for("get_book", book_id=book_id))
+            else:
+                
+                print(the_book)
+                return render_template("editbook.html", book=the_book, categories=all_categories, form=form)
         
         else:
-            
-            print(the_book)
-            return render_template("editbook.html", book=the_book, categories=all_categories, form=form)
-    
+            flash("You cannot edit this book's details, as it was uploaded by someone else...", "danger")
+            return redirect(url_for("get_book", book_id=book_id))
+        
     else:
         flash("You need to log in first...", "warning")
         return redirect(url_for("log_user_in"))
@@ -337,6 +343,27 @@ def edit_review(book_id):
 """
 Management (CRUD) of categories collection in database
 """
+
+@app.route("/delete_review/<book_id>")
+def delete_review(book_id):
+    """
+    Function to delete a review from the database, checks whether user is logged
+    in and only allows user to delete own reviews.
+    """
+    if g.user:
+        the_review = mongo.db.reviews.find_one({"book_id" : book_id})
+        if g.user == the_review["user_id"]:
+            flash("Review deleted from site.", "success")
+            mongo.db.reviews.remove({"_id" : the_review["_id"]})
+            return redirect(url_for('get_book', book_id=book_id))
+            
+        else:
+            flash("You cannot delete the review, as it was uploaded by someone else...", "danger")
+            return redirect(url_for('get_book', book_id=book_id))
+    
+    else:
+        flash("You need to log in first...", "warning")
+        return redirect(url_for("log_user_in"))
 
 
 @app.route("/get_categories")
