@@ -276,7 +276,9 @@ def get_categories():
 @app.route("/add_category", methods=["GET","POST"])
 def add_category():
     """
-    Function to load WTForm for adding category and render to html and add to database
+    Function to load WTForm for adding category and render to html and add to
+    database.  Checks first whether a user is logged in, before performing
+    function.
     
     WTForms code adapted from Corey Shafer's tutorial found at
     https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
@@ -306,15 +308,46 @@ def add_category():
         return redirect(url_for("log_user_in"))
    
  
-@app.route("/edit_category/<category_id>")
+@app.route("/edit_category/<category_id>", methods=["GET", "POST"])
 def edit_category(category_id):
     """
-    Function to load form for a category to be changed and render to html
+    Function to load form for a category to be changed and render to html.
+    Checks first whether a user is logged in, before performing
+    function.
     """
     
-    the_category = mongo.db.categories.find_one({"_id": ObjectId(category_id)})
+    if g.user:
+        form = CategoryForm()
+        the_category = mongo.db.categories.find_one({"_id": ObjectId(category_id)})
+        print("")
+        print("Printing DB Category: ")
+        print(the_category)
+        print("")
+        if form.validate_on_submit():
+            flash(f"Category successfully edited: {form.category_name.data}!", "success")
+            
+            categories = mongo.db.categories
+            categories.update({"_id": ObjectId(category_id)},
+            {
+                "category_name" : form.category_name.data.lower(),
+                "cover_url" : form.cover_url.data,
+                "csrf_token" : form.csrf_token.data
+            })
+            
+            return redirect(url_for("get_categories"))
+        
+        else:
+            return render_template("editcategory.html", category=the_category, form=form)
     
-    return render_template("editcategory.html", category=the_category)
+    else:
+        flash("You need to log in first...", "warning")
+        return redirect(url_for("log_user_in"))
+    
+    
+    
+#    the_category = mongo.db.categories.find_one({"_id": ObjectId(category_id)})
+    
+#    return render_template("editcategory.html", category=the_category)
 
 
 @app.route("/update_category/<category_id>", methods=["POST"])

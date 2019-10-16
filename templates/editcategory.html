@@ -1,34 +1,72 @@
 {% extends "base.html" %} {% block content %}
-<div class="row justify-content-around">
-    <div class="col-10">
-        <h1>Edit Category</h1>
-        <p>This is the edit category page</p>
+<section class="container-fluid"> 
+    <div class="row justify-content-around">
+        <div class="col-10">
+            <h1 class="fnt-clr-red">Edit Category</h1>
+            <p>This is the edit category page</p>
+        </div>
     </div>
-</div>
 
-<div class="row justify-content-around">
-    <div class="col-10">
-        <form action="{{ url_for('update_category', category_id=category._id) }}" method="POST">
-            <legend>Edit a category</legend>
-            <div class="form-group">
-                <label class="col-form-label" for="category_name">Category:</label>
-                <input type="text" class="form-control" placeholder="Enter the category name..." name="category_name" id="category_name" value="{{ category.category_name }}">
-            </div>
-            
-            <button type="submit" class="btn btn-primary">Submit Change</button>
-        </form>
+    <!-- Code adapted from Corey Shafer's tutorial found at
+    https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3-->
+    <div class="row justify-content-around">
+        <div class="col-10 bottom-margin">
+            <form action="{{ url_for('edit_category', category_id=category._id) }}" method="POST">
+                {{ form.hidden_tag() }}
+                <fieldset class="form-group">
+                <legend>Edit an existing category</legend>
+                <div class="form-group">
+                    {{ form.category_name.label(class="col-form-label") }}
+                    {% if form.category_name.errors %}
+                        {{ form.category_name(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.category_name.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.category_name(class="form-control", placeholder="Enter the name of the category...", value=category.category_name.title()) }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.cover_url.label(class="col-form-label") }}
+                    {% if form.cover_url.errors %}
+                        {{ form.cover_url(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.cover_url.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.cover_url(class="form-control", placeholder="Enter the cover link...", value=category.cover_url) }}
+                    {% endif %}
+                </div>
+                </fieldset>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Update Category</button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
-<div class="row justify-content-around">
-    <div class="col-10">
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptates vitae aliquid, impedit dignissimos facere voluptate. Omnis vitae, quaerat libero blanditiis culpa cumque quas consequuntur ad soluta. Tempora obcaecati, ex incidunt a reiciendis
-            expedita eaque id facere molestiae nesciunt architecto commodi maiores quam. Earum a libero officiis natus temporibus blanditiis ut, dolores distinctio esse et eligendi corporis eos iste. Perspiciatis itaque, vero maxime fugit excepturi perferendis
-            nam obcaecati, possimus cum. Cumque ipsum laudantium unde possimus animi. Dolorum excepturi, doloremque provident. Quos, error provident saepe ducimus dolores quibusdam quo cupiditate magnam quod eius, tempora vel quas beatae nisi amet voluptas
-            ratione, deleniti officia debitis, et. Dolore et perferendis quas praesentium doloribus velit reprehenderit voluptatem laudantium atque illo! Sunt voluptas repellat at impedit delectus nostrum soluta magnam sequi. Iste ab dicta porro sequi
-            nostrum assumenda aperiam dolor quas mollitia enim dolores molestiae asperiores doloremque labore explicabo, nisi hic repudiandae itaque. Voluptas, asperiores officiis sint doloribus commodi, rerum tenetur labore architecto perspiciatis impedit
-            blanditiis consequatur ullam, veritatis nisi necessitatibus aliquam deserunt quam ducimus, at tempora deleniti saepe porro cumque! Architecto neque officiis modi dolor deserunt dignissimos, praesentium voluptas, nulla ducimus odio a! Inventore
-            blanditiis optio ea ratione a cum maiores aliquam vel nobis neque?</p>
+
+
+    <!-- Remove below if top is functioning
+    <div class="row justify-content-around">
+        <div class="col-10 col-lg-7">
+            <form action="{{ url_for('update_category', category_id=category._id) }}" method="POST">
+                <legend>Edit a category</legend>
+                <div class="form-group">
+                    <label class="col-form-label" for="category_name">Category Name:</label>
+                    <input type="text" class="form-control" placeholder="Enter the category name..." name="category_name" id="category_name" value="{{ category.category_name }}">
+                    <label class="col-form-label" for="cover_url">Category Image Link:</label>
+                    <input type="text" class="form-control" placeholder="Add a link to the category cover image..." name="cover_url" id="cover_url" value="{{ category.cover_url }}">
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Submit Change</button>
+            </form>
+        </div>
     </div>
-</div>
+    -->
+</section>
 {% endblock %}
