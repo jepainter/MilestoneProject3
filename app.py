@@ -20,7 +20,7 @@ mongo = PyMongo(app)
 bcrypt = Bcrypt(app)
 
 @app.route("/", methods=["GET"])
-@app.route("/home_screen", methods=["GET"]) #remove this if not necessary, test first
+#@app.route("/home_screen", methods=["GET"]) #remove this if not necessary, test first
 def home_screen():
     """
     Function for rendering landing page
@@ -480,45 +480,53 @@ def log_user_in():
     """
     form = LogInForm()
     
-    print("")
-    print("##########################")
-    print("Session User before pop:")
+#    print("")
+#    print("##########################")
+#    print("Session User before pop:")
 #    print(session["user"])
    
     session.pop("user", None)
     
-    print("")
-    print("##########################")
-    print("Session User after pop:")
+#    print("")
+#    print("##########################")
+#    print("Session User after pop:")
 #    print(session["user"])
     
     
     if form.validate_on_submit():
         user = mongo.db.users.find_one({"email" : form.email.data.lower()})
-        print("")
-        print("User: ")
-        print(user)
-        print("")
-        print("User Password: ")
-        for k, v in user.items():
-            if k == "password":
-                print(v)
-                print("")
-                if user and bcrypt.check_password_hash(v, form.password.data):
-                    print("Password and email successfull")
-                    session["user"] = form.email.data.lower()
+        if user!= None:
+            print("")
+            print("User: ")
+            print(user)
+            print("")
+            print("User Password: ")
+            for k, v in user.items():
+                if k == "password":
+                    print(v)
                     print("")
-                    print("##########################")
-                    print("Session User after setting in login:")
-                    print(session["user"])
-                    
-                    return redirect(url_for('protected'))
-                else:
-                    flash(f"Log in unsuccessful!  Check your email and password.", "danger")
-                    print("")
-                    print("##########################")
-                    print("Session User after unsuccessful login:")
-                    #print(session["user"])
+                    if user and bcrypt.check_password_hash(v, form.password.data):
+                        print("Password and email successfull")
+                        session["user"] = str(user["_id"])
+                        print("")
+                        print("##########################")
+                        print("Session User after setting in login:")
+                        print(session)
+                        print("User_ID:" + str(user["_id"]))
+                        
+                        return redirect(url_for('home_screen'))
+                    else:
+                        flash(f"Log in unsuccessful!  Check your email and password.", "danger")
+                        print("")
+                        print("##########################")
+                        print("Session User after unsuccessful login:")
+                        #print(session["user"])
+        else:
+            flash(f"Log in unsuccessful!  Check your email and password.", "danger")
+            print("")
+            print("##########################")
+            print("Session User after unsuccessful login:")
+            #print(session["user"])
     
     print("")
     print("##########################")
@@ -573,13 +581,27 @@ def delete_user(user_id):
 @app.route("/get_session")
 def get_session():
     if "user" in session:
-        return session["user"]
-    return "Not logged in"
+        print("")
+        print("##Get Session##")
+        print("Session Active: ")
+        print(session["user"])
+        return redirect(url_for('home_screen'))
+    else:
+        print("")
+        print("##Get Session##")
+        print("Session Not Active: ")
+        print(session)
+        print("User not logged in!")
+        return redirect(url_for('home_screen'))
 
 @app.route("/close_session")
 def close_session():
     session.pop("user", None)
-    return "Dropped session"
+    print("")
+    print("##Close Session##")
+    print("Session Closed: ")
+    print(session)
+    return redirect(url_for('home_screen'))
 
 
 @app.route("/protected")

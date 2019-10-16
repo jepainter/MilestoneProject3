@@ -32,15 +32,44 @@
          </button>
 
             <div class="collapse navbar-collapse" id="navbarColor02">
-                <div class="navbar-nav mr-auto">
+                <ul class="navbar-nav mr-auto">
                     <a class="nav-item nav-link" href="{{ url_for('home_screen') }}">Home <span class="sr-only">(current)</span></a>
-                    <a class="nav-item nav-link" href="{{ url_for('get_books', category_id='') }}">Books</a>
-                    <a class="nav-item nav-link" href="{{ url_for('get_categories') }}">Categories</a>
-                    <a class="nav-item nav-link" href="{{ url_for('get_users') }}">Users</a>
-                </div>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" id="booksDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          Books
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="booksDropdown">
+                          <a class="dropdown-item" href="{{ url_for('get_books') }}">View Books</a>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" href="{{ url_for('add_book') }}">Add Book</a>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" id="categoriesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          Categories
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="categoriesDropdown">
+                          <a class="dropdown-item" href="{{ url_for('get_categories') }}">View Categories</a>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" href="{{ url_for('add_category') }}">Add Category</a>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" id="usersDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          Users
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="usersDropdown">
+                          <a class="dropdown-item" href="{{ url_for('get_users') }}">View Users</a>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" href="{{ url_for('add_user') }}">Add User</a>
+                        </div>
+                    </li>
+                </ul>
                 <!-- adapted from https://www.youtube.com/watch?v=QnDWIZuWYW0&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=2 -->
                 <div class="navbar-nav">
-                    <a class="navbar-item nav-link" href="{{ url_for('login_user') }}">Login</a>
+                    <a class="navbar-item nav-link" href="{{ url_for('get_session') }}">Get Session</a>
+                    <a class="navbar-item nav-link" href="{{ url_for('close_session') }}">Close Session</a>
+                    <a class="navbar-item nav-link" href="{{ url_for('log_user_in') }}">Login</a>
                     <a class="navbar-item nav-link" href="{{ url_for('add_user') }}">Register</a>
                 </div>
             </div>
@@ -55,21 +84,22 @@
     <!-- Section for inserting block content from pages using Flask -->
     <!-- Code adapted from Corey Shafer's tutorial found at
     https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3-->
-    {% with messages = get_flashed_messages(with_categories=true) %} 
-        {% if messages %} 
-            {% for category, message in messages %}
-            <section class="container-fluid top-pad">
-                <div class="row justify-content-around">
-                    <div class="col-10 text-center">
-                        <div class="alert alert-{{ category }}">
-                            {{ message }}
-                        </div>
-                    </div>
-                </div>
-            </section>
-            {% endfor %} 
-        {% endif %} 
-    {% endwith %} 
+    <section class="container-fluid top-pad">
+        <div class="row justify-content-around">
+            <div class="col-10 text-center">
+                {% with messages = get_flashed_messages(with_categories=true) %} 
+                    {% if messages %} 
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %} 
+                    {% endif %}
+                {% endwith %} 
+            </div>
+        </div>
+    </section>
+            
     
     {% block content %} {% endblock %}
 
