@@ -7,7 +7,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_pymongo import PyMongo
 from flask_bcrypt import Bcrypt
 from bson.objectid import ObjectId
-from forms import RegistrationForm, LogInForm, AddBookForm, CategoryForm, AddCommentForm, AddReviewForm
+from forms import RegistrationForm, LogInForm, BookForm, CategoryForm, AddCommentForm, AddReviewForm
 
 app = Flask(__name__)
 
@@ -127,12 +127,46 @@ def get_book(book_id):
 @app.route("/add_book", methods=["GET", "POST"])
 def add_book():
     """
-    Function to load WTForm for adding book and render to html and add to database
+    Function to load WTForm for adding book and render to html and add to
+    database. Checks first whether a user is logged in, before performing
+    function.
     
     WTForms code adapted from Corey Shafer's tutorial found at
     https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
     """
     
+    if g.user:
+        form = BookForm()
+        if form.validate_on_submit():
+            flash(f"New book added: {form.title.data.title()}!", "success")
+            
+            book = {
+                "title" : form.title.data.lower(),
+                "author_fname" : form.author_fname.data.lower(),
+                "author_lname" : form.author_lname.data.lower(),
+                "category_id" : form.category_id.data,
+                "user_id" : g.user,
+                "up_votes" : 0,
+                "down_votes" : 0,
+                "date_added" : date.today().strftime("%Y/%m/%d"),
+                "cover_url" : form.cover_url.data,
+                "csrf_token" : form.csrf_token.data 
+            }
+
+            books = mongo.db.books
+            books.insert_one(book)
+            
+            return redirect(url_for("get_books"))
+        
+        else:
+            return render_template("addbook.html", form=form, categories=mongo.db.categories.find())
+    
+    else:
+        flash("You need to log in first...", "warning")
+        return redirect(url_for("log_user_in"))
+    
+
+"""    
     form = AddBookForm()
     
     if form.validate_on_submit():
@@ -157,7 +191,7 @@ def add_book():
         return redirect(url_for("get_books"))
     else:
         return render_template("addbook.html", form=form, categories=mongo.db.categories.find())
-
+"""
 
 @app.route("/edit_book/<book_id>")
 def edit_book(book_id):
@@ -345,24 +379,25 @@ def edit_category(category_id):
     
     
     
-#    the_category = mongo.db.categories.find_one({"_id": ObjectId(category_id)})
-    
-#    return render_template("editcategory.html", category=the_category)
 
 
-@app.route("/update_category/<category_id>", methods=["POST"])
-def update_category(category_id):
-    """
-    Function to update database with revised category information
-    """
-    
-    categories = mongo.db.categories
-    categories.update({"_id": ObjectId(category_id)},
-    {
-        "category_name" : request.form.get("category_name")
-    })
-    
-    return redirect(url_for("get_categories"))
+
+
+#########
+#remove function not necessary anymore
+#@app.route("/update_category/<category_id>", methods=["POST"])
+#def update_category(category_id):
+#    """
+#    Function to update database with revised category information
+#    """
+#    
+#    categories = mongo.db.categories
+#    categories.update({"_id": ObjectId(category_id)},
+#    {
+#        "category_name" : request.form.get("category_name")
+#    })
+#    
+#    return redirect(url_for("get_categories"))
 
 
 @app.route("/delete_category/<category_id>")

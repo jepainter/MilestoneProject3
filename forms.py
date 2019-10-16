@@ -43,9 +43,9 @@ class LogInForm(FlaskForm):
     submit = SubmitField("Log In")
 
 
-class AddBookForm(FlaskForm):
+class BookForm(FlaskForm):
     """
-    Form to capture and validate new book to add
+    Form to capture and validate new book to add as  well as update book info
     
     up_votes and down_votes and date_added are set within the add_book function
     """
@@ -56,15 +56,14 @@ class AddBookForm(FlaskForm):
     author_lname = StringField("Author Surname", 
                                 validators=[DataRequired(), Length(min=1)])
     category_id = StringField("Category")
-    user_id = StringField("UserId", 
-                                validators=[DataRequired(), Length(min=10)])
     cover_url = StringField("Cover Link", 
                                 validators=[DataRequired(), Length(min=2)])
     
 
 class CategoryForm(FlaskForm):
     """
-    Form to capture and validate new category to add
+    Form to capture and validate new category to add, as well as used to update
+    categories
     """
     category_name = StringField("Category Name", 
                             validators=[DataRequired(), Length(min=2)])

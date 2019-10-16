@@ -74,19 +74,6 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    {{ form.user_id.label(class="col-form-label") }}
-                    {% if form.user_id.errors %}
-                        {{ form.user_id(class="form-control is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.user_id.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.user_id(class="form-control", placeholder="Enter your username...") }}
-                    {% endif %}
-                </div>
-                <div class="form-group">
                     {{ form.cover_url.label(class="col-form-label") }}
                     {% if form.cover_url.errors %}
                         {{ form.cover_url(class="form-control is-invalid") }}
