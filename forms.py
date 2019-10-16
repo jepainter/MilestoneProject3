@@ -81,11 +81,10 @@ class AddCommentForm(FlaskForm):
     user_id = StringField("UserId", validators=[DataRequired(), Length(min=10)])
 
 
-class AddReviewForm(FlaskForm):
+class ReviewForm(FlaskForm):
     """
     Form to capture and validate new review to add
     
     book_id is assigned within the function add_review
     """
     review = StringField("Review", validators=[DataRequired(), Length(min=10, max=1000)])
-    user_id = StringField("UserId", validators=[DataRequired(), Length(min=10)])

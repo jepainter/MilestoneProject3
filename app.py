@@ -7,7 +7,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_pymongo import PyMongo
 from flask_bcrypt import Bcrypt
 from bson.objectid import ObjectId
-from forms import RegistrationForm, LogInForm, BookForm, CategoryForm, AddCommentForm, AddReviewForm
+from forms import RegistrationForm, LogInForm, BookForm, CategoryForm, AddCommentForm, ReviewForm
 
 app = Flask(__name__)
 
@@ -217,24 +217,18 @@ def delete_book(book_id):
     if g.user:
         the_book = mongo.db.books.find_one({"_id" : ObjectId(book_id)})
         if g.user == the_book["user_id"]:
-            flash("Book deleted from site", "success")
+            flash("Book deleted from site.", "success")
             mongo.db.books.remove({"_id" : ObjectId(book_id)})
             return redirect(url_for('get_books'))
             
         else:
-            flash("You cannot delete this book, as it was uploaded by someone else...", "danger")
+            flash("You cannot delete that book, as it was uploaded by someone else...", "danger")
             print("Book not removed, not same id")
             return redirect(url_for("get_books"))
     
     else:
         flash("You need to log in first...", "warning")
         return redirect(url_for("log_user_in"))
- 
- 
-        
-#    mongo.db.books.remove({"_id" : ObjectId(book_id)})
-    
-#    return redirect(url_for("get_books"))
 
 
 
@@ -255,10 +249,14 @@ def check_review_exists(book_id):
         flash(f"A review already exists for the book", "warning")
         return redirect(url_for('get_book', book_id=book_id))
     else:
-        return redirect(url_for("add_review", book_id=book_id))
+        if g.user:
+            return redirect(url_for("add_review", book_id=book_id))
+        else:
+            flash("You need to log in first...", "warning")
+            return redirect(url_for("log_user_in"))
     
-    flash(f"Oops, something went wrong!", "danger")
-    return redirect(url_for('get_book', book_id=book_id))
+#    flash(f"Oops, something went wrong!", "danger")
+#    return redirect(url_for('get_book', book_id=book_id))
 
 
 @app.route("/add_review/<book_id>", methods=["GET", "POST"])
@@ -270,29 +268,31 @@ def add_review(book_id):
     https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
     """
     
-    form = AddReviewForm()
+    if g.user:
+        form = ReviewForm()
     
-    if form.validate_on_submit():
-        flash(f"New review uploaded!", "success")
-        
-        review = {
-            "review" : form.review.data,
-            "book_id" : book_id,
-            "user_id" : form.user_id.data,
-            "date_added" : date.today().strftime("%Y/%m/%d"),
-            "csrf_token" : form.csrf_token.data 
-        }
-        
-        reviews = mongo.db.reviews
-        reviews.insert_one(review)
-        
-        return redirect(url_for("get_book", book_id=book_id))
+        if form.validate_on_submit():
+            flash(f"New review uploaded!", "success")
+            
+            review = {
+                "review" : form.review.data,
+                "book_id" : book_id,
+                "user_id" : g.user,
+                "date_added" : date.today().strftime("%Y/%m/%d"),
+                "csrf_token" : form.csrf_token.data 
+            }
+            
+            reviews = mongo.db.reviews
+            reviews.insert_one(review)
+            
+            return redirect(url_for("get_book", book_id=book_id))
+            
+        else:
+            return render_template("addreview.html", form=form, book_id=book_id)
         
     else:
-        return render_template("addreview.html", form=form, book_id=book_id)
-        
-    flash(f"Oops, something went wrong!", "danger")
-    return redirect(url_for('get_book', book_id=book_id))
+        flash("You need to log in first...", "warning")
+        return redirect(url_for("log_user_in"))
 
 
 """

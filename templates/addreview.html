@@ -28,19 +28,6 @@
                         {{ form.review(class="form-control", placeholder="Enter your review for the book...") }}
                     {% endif %}
                 </div>
-                <div class="form-group">
-                    {{ form.user_id.label(class="col-form-label") }}
-                    {% if form.user_id.errors %}
-                        {{ form.user_id(class="form-control is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.user_id.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.user_id(class="form-control", placeholder="Enter your user id...") }}
-                    {% endif %}
-                </div>
                 </fieldset>
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary">Submit Review</button>
