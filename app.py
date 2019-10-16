@@ -294,6 +294,45 @@ def add_review(book_id):
         flash("You need to log in first...", "warning")
         return redirect(url_for("log_user_in"))
 
+@app.route("/edit_review/<book_id>", methods=["GET", "POST"])
+def edit_review(book_id):
+    """
+    Function to load form for a review to be changed and render to html.
+    Checks first whether a user is logged in and whether user is same as
+    original reviewer before performing function.
+    """
+    
+    if g.user:
+        the_review = mongo.db.reviews.find_one({"book_id" : book_id})
+        
+        if g.user == the_review["user_id"]:
+            form = ReviewForm()
+            
+            if form.validate_on_submit():
+                flash(f"Review successfully edited!", "success")
+                
+                reviews = mongo.db.reviews
+                reviews.update({"_id": ObjectId(the_review["_id"])},
+                {
+                    "review" : form.review.data,
+                    "book_id" : book_id,
+                    "user_id" : g.user,
+                    "date_added" : date.today().strftime("%Y/%m/%d"),
+                    "csrf_token" : form.csrf_token.data
+                })
+                
+                return redirect(url_for("get_book", book_id=book_id))
+            
+            else:
+                return render_template("editreview.html", book_id=book_id, review=the_review, form=form)
+                
+        else:
+            flash("You cannot edit this review, as it was uploaded by someone else...", "danger")
+            return redirect(url_for("get_book", book_id=book_id))
+    
+    else:
+        flash("You need to log in first...", "warning")
+        return redirect(url_for("log_user_in"))
 
 """
 Management (CRUD) of categories collection in database
