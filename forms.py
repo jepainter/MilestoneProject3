@@ -62,7 +62,7 @@ class AddBookForm(FlaskForm):
                                 validators=[DataRequired(), Length(min=2)])
     
 
-class AddCategoryForm(FlaskForm):
+class CategoryForm(FlaskForm):
     """
     Form to capture and validate new category to add
     """

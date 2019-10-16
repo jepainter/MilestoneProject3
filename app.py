@@ -7,7 +7,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_pymongo import PyMongo
 from flask_bcrypt import Bcrypt
 from bson.objectid import ObjectId
-from forms import RegistrationForm, LogInForm, AddBookForm, AddCategoryForm, AddCommentForm, AddReviewForm
+from forms import RegistrationForm, LogInForm, AddBookForm, CategoryForm, AddCommentForm, AddReviewForm
 
 app = Flask(__name__)
 
@@ -282,24 +282,28 @@ def add_category():
     https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
     """
     
-    form = AddCategoryForm()
-    
-    if form.validate_on_submit():
-        flash(f"New category created: {form.category_name.data}!", "success")
+    if g.user:
+        form = CategoryForm()
+        if form.validate_on_submit():
+            flash(f"New category created: {form.category_name.data}!", "success")
+            
+            category = {
+                "category_name" : form.category_name.data.lower(),
+                "cover_url" : form.cover_url.data,
+                "csrf_token" : form.csrf_token.data 
+            }
+            
+            categories = mongo.db.categories
+            categories.insert_one(category)
+            
+            return redirect(url_for("get_categories"))
         
-        category = {
-            "category_name" : form.category_name.data.lower(),
-            "cover_url" : form.cover_url.data,
-            "csrf_token" : form.csrf_token.data 
-        }
-        
-        categories = mongo.db.categories
-        categories.insert_one(category)
-        
-        return redirect(url_for("get_categories"))
+        else:
+            return render_template("addcategory.html", form=form)
     
     else:
-        return render_template("addcategory.html", form=form)
+        flash("You need to log in first...", "warning")
+        return redirect(url_for("log_user_in"))
    
  
 @app.route("/edit_category/<category_id>")
@@ -479,50 +483,20 @@ def log_user_in():
     https://www.youtube.com/watch?v=eBwhBrNbrNI
     """
     form = LogInForm()
-   
     session.pop("user", None)
-    
-    
     
     if form.validate_on_submit():
         user = mongo.db.users.find_one({"email" : form.email.data.lower()})
         if user!= None:
-#            print("")
-#            print("User: ")
-#            print(user)
-#            print("")
-#            print("User Password: ")
             for k, v in user.items():
                 if k == "password":
-#                    print(v)
-#                    print("")
                     if user and bcrypt.check_password_hash(v, form.password.data):
-#                        print("Password and email successfull")
                         session["user"] = str(user["_id"])
-#                        print("")
- #                       print("##########################")
- #                       print("Session User after setting in login:")
- #                       print(session)
- #                       print("User_ID:" + str(user["_id"]))
-                        
                         return redirect(url_for('home_screen'))
                     else:
                         flash(f"Log in unsuccessful!  Check your email and password.", "danger")
- #                       print("")
- #                       print("##########################")
- #                       print("Session User after unsuccessful login:")
-                        #print(session["user"])
         else:
             flash(f"Log in unsuccessful!  Check your email and password.", "danger")
-#            print("")
-#            print("##########################")
-#            print("Session User after unsuccessful login:")
-            #print(session["user"])
-    
-#    print("")
-#    print("##########################")
-#    print("Session User after unsucessful validate in login:")
-    #print(session["user"])
     
     return render_template("loginuser.html", form=form)
     
@@ -561,7 +535,8 @@ def update_user(user_id):
 @app.route("/delete_user/<user_id>")
 def delete_user(user_id):
     """
-    Function to delete a user from the database
+    Function to delete a user from the database, checks whether user is logged
+    in and only allows user to delete own account.
     """
     if g.user:
         if g.user == user_id:
@@ -573,8 +548,7 @@ def delete_user(user_id):
         else:
             flash("You cannot remove this user, you do not have the relevant privileges...", "danger")
             print("User not removed, not same id")
-            
-        return redirect(url_for("get_users"))
+            return redirect(url_for("get_users"))
     
     else:
         flash("You need to log in first...", "warning")
