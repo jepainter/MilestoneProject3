@@ -71,14 +71,13 @@ class CategoryForm(FlaskForm):
                             validators=[DataRequired(), Length(min=2)])
     
 
-class AddCommentForm(FlaskForm):
+class CommentForm(FlaskForm):
     """
     Form to capture and validate new comment to add
     
     book_id is assigned within the function add_book
     """
-    comment = StringField("Comment", validators=[DataRequired(), Length(min=2, max=140)])
-    user_id = StringField("UserId", validators=[DataRequired(), Length(min=10)])
+    comment = StringField("Comment", validators=[DataRequired(), Length(min=2, max=180)])
 
 
 class ReviewForm(FlaskForm):

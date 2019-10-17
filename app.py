@@ -490,6 +490,43 @@ def add_comment(book_id):
         flash("You need to log in first...", "warning")
         return redirect(url_for("log_user_in"))
 
+@app.route("/edit_comment/<comment_id>", methods=["GET", "POST"])
+def edit_comment(comment_id):
+    """
+    Function to load WTForm for edit a comment on book
+    
+    WTForms code adapted from Corey Shafer's tutorial found at
+    https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
+    """
+    
+    if g.user:
+        the_comment = mongo.db.comments.find_one({"_id" : ObjectId(comment_id)})
+        if g.user == the_comment["user_id"]:
+            form = CommentForm()
+            if form.validate_on_submit():
+                flash(f"Comment successfully edited!", "success")
+                
+                comments = mongo.db.comments
+                comments.update({"_id" : ObjectId(comment_id)},
+                {
+                    "comment" : form.comment.data,
+                    "book_id" : the_comment["book_id"],
+                    "user_id" : g.user,
+                    "csrf_token" : form.csrf_token.data 
+                })
+                
+                return redirect(url_for("get_book", book_id=the_comment["book_id"]))
+                
+            else:
+                return render_template("editcomment.html", form=form, comment=the_comment)
+        
+        else:
+            flash("You cannot edit this comment, as it was made by someone else...", "danger")
+            return redirect(url_for('get_book', book_id=the_comment["book_id"]))
+    else:
+        flash("You need to log in first...", "warning")
+        return redirect(url_for("log_user_in"))
+
 
 @app.route("/delete_comment/<comment_id>")
 def delete_comment(comment_id):
