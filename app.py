@@ -7,7 +7,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_pymongo import PyMongo
 from flask_bcrypt import Bcrypt
 from bson.objectid import ObjectId
-from forms import RegistrationForm, LogInForm, BookForm, CategoryForm, AddCommentForm, ReviewForm
+from forms import RegistrationForm, LogInForm, BookForm, CategoryForm, CommentForm, ReviewForm
 
 app = Flask(__name__)
 
@@ -261,9 +261,6 @@ def check_review_exists(book_id):
             flash("You need to log in first...", "warning")
             return redirect(url_for("log_user_in"))
     
-#    flash(f"Oops, something went wrong!", "danger")
-#    return redirect(url_for('get_book', book_id=book_id))
-
 
 @app.route("/add_review/<book_id>", methods=["GET", "POST"])
 def add_review(book_id):
@@ -421,10 +418,6 @@ def edit_category(category_id):
     if g.user:
         form = CategoryForm()
         the_category = mongo.db.categories.find_one({"_id": ObjectId(category_id)})
-        print("")
-        print("Printing DB Category: ")
-        print(the_category)
-        print("")
         if form.validate_on_submit():
             flash(f"Category successfully edited: {form.category_name.data}!", "success")
             
@@ -444,46 +437,26 @@ def edit_category(category_id):
     else:
         flash("You need to log in first...", "warning")
         return redirect(url_for("log_user_in"))
-    
-    
-    
-
-
-
-
-#########
-#remove function not necessary anymore
-#@app.route("/update_category/<category_id>", methods=["POST"])
-#def update_category(category_id):
-#    """
-#    Function to update database with revised category information
-#    """
-#    
-#    categories = mongo.db.categories
-#    categories.update({"_id": ObjectId(category_id)},
-#    {
-#        "category_name" : request.form.get("category_name")
-#    })
-#    
-#    return redirect(url_for("get_categories"))
 
 
 @app.route("/delete_category/<category_id>")
 def delete_category(category_id):
     """
-    Function to delete a category from the database
+    Function to delete a category from the database, check first if user logged in
     """
-    
-    mongo.db.categories.remove({"_id" : ObjectId(category_id)})
-    
-    return redirect(url_for("get_categories"))
+    if g.user:
+        mongo.db.categories.remove({"_id" : ObjectId(category_id)})
+        return redirect(url_for("get_categories"))
+    else:
+        flash("You need to log in first...", "warning")
+        return redirect(url_for("log_user_in"))
+
+
 
 
 """
 Management (CRUD) of comments collection in database
 """    
-
-
 @app.route("/add_comment/<book_id>", methods=["GET", "POST"])
 def add_comment(book_id):
     """
@@ -493,25 +466,51 @@ def add_comment(book_id):
     https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
     """
     
-    form = AddCommentForm()
-    
-    if form.validate_on_submit():
-        flash(f"New comment posted!", "success")
+    if g.user:
+        form = CommentForm()
         
-        comment = {
-            "comment" : form.comment.data.lower(),
-            "book_id" : book_id,
-            "user_id" : form.user_id.data,
-            "csrf_token" : form.csrf_token.data 
-        }
-        
-        comments = mongo.db.comments
-        comments.insert_one(comment)
-        
-        return redirect(url_for("get_book", book_id=book_id))
-        
+        if form.validate_on_submit():
+            flash(f"New comment posted!", "success")
+            
+            comment = {
+                "comment" : form.comment.data,
+                "book_id" : book_id,
+                "user_id" : g.user,
+                "csrf_token" : form.csrf_token.data 
+            }
+            
+            comments = mongo.db.comments
+            comments.insert_one(comment)
+            
+            return redirect(url_for("get_book", book_id=book_id))
+            
+        else:
+            return render_template("addcomment.html", form=form, book_id=book_id)
     else:
-        return render_template("addcomment.html", form=form, book_id=book_id)
+        flash("You need to log in first...", "warning")
+        return redirect(url_for("log_user_in"))
+
+
+@app.route("/delete_comment/<comment_id>")
+def delete_comment(comment_id):
+    """
+    Function to delete a review from the database, checks whether user is logged
+    in and only allows user to delete own reviews.
+    """
+    if g.user:
+        the_comment = mongo.db.comments.find_one({"_id" : ObjectId(comment_id)})
+        if g.user == the_comment["user_id"]:
+            flash("Comment deleted from for book.", "success")
+            mongo.db.comments.remove({"_id" : the_comment["_id"]})
+            return redirect(url_for('get_book', book_id=the_comment["book_id"]))
+            
+        else:
+            flash("You cannot delete the comment, as it was made by someone else...", "danger")
+            return redirect(url_for('get_book', book_id=the_comment["book_id"]))
+    
+    else:
+        flash("You need to log in first...", "warning")
+        return redirect(url_for("log_user_in"))
 
 
 """
@@ -551,60 +550,52 @@ def add_user():
     User authentication code adapted from from Corey Shafer's tutorial found at
     https://www.youtube.com/watch?v=CSHx6eCkmv0&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=6
     """
-    form = RegistrationForm()
     
-    if form.validate_on_submit():
+    if g.user == None:
+        form = RegistrationForm()
         
-        print("Username: " + str(form.username.data.lower()))
-        
-        username_exist = user_exists("username", form.username.data.lower())
-        email_exist = user_exists("email", form.email.data.lower())
-        if username_exist == True and email_exist == True:
-            username_error = "That username already exists.  Please choose a different one..."
-            email_error = "That email already exists.  Please choose a different one..."
-            return render_template("adduser.html", form=form, username_error=username_error, email_error=email_error)
-        elif username_exist == True and email_exist != True:
-            username_error = "That username already exists.  Please choose a different one..."
-            return render_template("adduser.html", form=form, username_error=username_error)
-        elif username_exist != True and email_exist == True:
-            email_error = "That email already exists.  Please choose a different one..."
-            return render_template("adduser.html", form=form, email_error=email_error)
-        
-        
-        hash_password = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
-        
-        flash(f"Account created for {form.username.data}! You are free to log in...", "success")
-        
-        user = {
-            "fname" : form.fname.data.lower(),
-            "lname" : form.lname.data.lower(),
-            "email" : form.email.data.lower(),
-            "username" : form.username.data.lower(),
-            "password" : hash_password,
-            "csrf_token" : form.csrf_token.data 
-        }
-        
-        users = mongo.db.users
-        users.insert_one(user)
-        
-        return redirect(url_for("login_user"))
+        if form.validate_on_submit():
+            
+            print("Username: " + str(form.username.data.lower()))
+            
+            username_exist = user_exists("username", form.username.data.lower())
+            email_exist = user_exists("email", form.email.data.lower())
+            if username_exist == True and email_exist == True:
+                username_error = "That username already exists.  Please choose a different one..."
+                email_error = "That email already exists.  Please choose a different one..."
+                return render_template("adduser.html", form=form, username_error=username_error, email_error=email_error)
+            elif username_exist == True and email_exist != True:
+                username_error = "That username already exists.  Please choose a different one..."
+                return render_template("adduser.html", form=form, username_error=username_error)
+            elif username_exist != True and email_exist == True:
+                email_error = "That email already exists.  Please choose a different one..."
+                return render_template("adduser.html", form=form, email_error=email_error)
+            
+            
+            hash_password = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
+            
+            flash(f"Account created for {form.username.data}! You are free to log in...", "success")
+            
+            user = {
+                "fname" : form.fname.data.lower(),
+                "lname" : form.lname.data.lower(),
+                "email" : form.email.data.lower(),
+                "username" : form.username.data.lower(),
+                "password" : hash_password,
+                "csrf_token" : form.csrf_token.data 
+            }
+            
+            users = mongo.db.users
+            users.insert_one(user)
+            
+            return redirect(url_for("login_user"))
+        else:
+            
+            return render_template("adduser.html", form=form)
+    
     else:
-        
-        return render_template("adduser.html", form=form)
-
-
-#@login_manager.user_loader
-#def load_user(user_id):
-#    """
-#    Function to manage loading of users as part of login_manager
-#    
-#    Code adapted from Corey Shafer's tutorial found at
-#    https://www.youtube.com/watch?v=CSHx6eCkmv0&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=6
-#    """
-#    
-#    the_user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
-#    
-#    return the_user 
+        flash("You are already logged on!", "warning")
+        return redirect(url_for('home_screen'))
 
 
 @app.route("/log_user_in", methods=["GET","POST"])
