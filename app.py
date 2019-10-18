@@ -220,13 +220,19 @@ def edit_book(book_id):
 def delete_book(book_id):
     """
     Function to delete a book from the database, checks whether user is logged
-    in and only allows user to delete own books submitted.
+    in and only allows user to delete own books submitted.  Function deletes
+    reviews and comments from db as well, as there is no use to keep info.
     """
     if g.user:
         the_book = mongo.db.books.find_one({"_id" : ObjectId(book_id)})
         if g.user == the_book["user_id"]:
-            flash("Book deleted from site.", "success")
+            flash("Book and associated info deleted from site.", "success")
+            print("Remove Book")
             mongo.db.books.remove({"_id" : ObjectId(book_id)})
+            print("Remove Review")
+            mongo.db.reviews.remove({"book_id" : book_id})
+            print("Remove Comments")
+            mongo.db.comments.remove({"book_id" : book_id})
             return redirect(url_for('get_books'))
             
         else:
