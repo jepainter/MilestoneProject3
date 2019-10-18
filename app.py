@@ -555,7 +555,17 @@ def get_users():
     """
     
     if g.user:
-        return render_template("users.html", users=mongo.db.users.find())
+        super_user = mongo.db.users.find_one({"username": "ubradmin" })
+        if g.user == str(super_user["_id"]):
+            print("Super User")
+            users = mongo.db.users.find()
+            print(users)
+            return render_template("users.html", users=users)
+        else:
+            print("Regular User")
+            print(g.user)
+            user = mongo.db.users.find_one({"_id": ObjectId(g.user)})
+            return render_template("users.html", user=user)
     else:
         flash("You need to login first...", "warning")
         return redirect(url_for('log_user_in'))
