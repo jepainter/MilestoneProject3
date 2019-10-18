@@ -7,7 +7,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_pymongo import PyMongo
 from flask_bcrypt import Bcrypt
 from bson.objectid import ObjectId
-from forms import RegistrationForm, LogInForm, BookForm, CategoryForm, CommentForm, ReviewForm
+from forms import RegistrationForm, UpdateProfileForm, LogInForm, BookForm, CategoryForm, CommentForm, ReviewForm
 
 app = Flask(__name__)
 
@@ -19,6 +19,11 @@ app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 mongo = PyMongo(app)
 bcrypt = Bcrypt(app)
 
+
+# Spacer to prevent collapse
+"""
+Landing page
+"""
 @app.route("/", methods=["GET"])
 #@app.route("/home_screen", methods=["GET"]) #remove this if not necessary, test first
 def home_screen():
@@ -28,6 +33,7 @@ def home_screen():
     return render_template("index.html", categories=mongo.db.categories.find())
 
 
+# Spacer to prevent collapse
 """
 Management (CRUD) of books collection in database
 """
@@ -35,7 +41,7 @@ Management (CRUD) of books collection in database
 @app.route("/get_books/<category_id>", methods=["GET","POST"])
 def get_books(category_id):
     """
-    Function to fetch books from database and render to html
+    Function to fetch books from database and render to html.  Uses a new dictionary to display grouped information together
     """
     
     merged_result={}
@@ -73,7 +79,6 @@ def get_books(category_id):
                 pass
     
     return render_template("books.html", books=merged_result, categories=mongo.db.categories.find())
-
 
 @app.route("/get_book/<book_id>")
 def get_book(book_id):
@@ -123,7 +128,6 @@ def get_book(book_id):
     
     return render_template("book.html", book=the_book, category=the_category, user=the_user, comments=the_comments, review=the_review, reviewer=the_reviewer, commenters=the_commenters)
 
-
 @app.route("/add_book", methods=["GET", "POST"])
 def add_book():
     """
@@ -165,7 +169,6 @@ def add_book():
         flash("You need to log in first...", "warning")
         return redirect(url_for("log_user_in"))
     
-
 @app.route("/edit_book/<book_id>", methods=["GET", "POST"])
 def edit_book(book_id):
     """
@@ -213,7 +216,6 @@ def edit_book(book_id):
         flash("You need to log in first...", "warning")
         return redirect(url_for("log_user_in"))
     
-
 @app.route("/delete_book/<book_id>")
 def delete_book(book_id):
     """
@@ -237,12 +239,100 @@ def delete_book(book_id):
         return redirect(url_for("log_user_in"))
 
 
+# Spacer to prevent collapse
+"""
+Management (CRUD) of categories collection in database
+"""
+@app.route("/get_categories")
+def get_categories():
+    """
+    Function to fetch categories from database and render to html
+    """
+    
+    return render_template("categories.html", categories=mongo.db.categories.find())
 
+@app.route("/add_category", methods=["GET","POST"])
+def add_category():
+    """
+    Function to load WTForm for adding category and render to html and add to
+    database.  Checks first whether a user is logged in, before performing
+    function.
+    
+    WTForms code adapted from Corey Shafer's tutorial found at
+    https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
+    """
+    
+    if g.user:
+        form = CategoryForm()
+        if form.validate_on_submit():
+            flash(f"New category created: {form.category_name.data}!", "success")
+            
+            category = {
+                "category_name" : form.category_name.data.lower(),
+                "cover_url" : form.cover_url.data,
+                "csrf_token" : form.csrf_token.data 
+            }
+            
+            categories = mongo.db.categories
+            categories.insert_one(category)
+            
+            return redirect(url_for("get_categories"))
+        
+        else:
+            return render_template("addcategory.html", form=form)
+    
+    else:
+        flash("You need to log in first...", "warning")
+        return redirect(url_for("log_user_in"))
+   
+@app.route("/edit_category/<category_id>", methods=["GET", "POST"])
+def edit_category(category_id):
+    """
+    Function to load form for a category to be changed and render to html.
+    Checks first whether a user is logged in, before performing
+    function.
+    """
+    
+    if g.user:
+        form = CategoryForm()
+        the_category = mongo.db.categories.find_one({"_id": ObjectId(category_id)})
+        if form.validate_on_submit():
+            flash(f"Category successfully edited: {form.category_name.data}!", "success")
+            
+            categories = mongo.db.categories
+            categories.update({"_id": ObjectId(category_id)},
+            {
+                "category_name" : form.category_name.data.lower(),
+                "cover_url" : form.cover_url.data,
+                "csrf_token" : form.csrf_token.data
+            })
+            
+            return redirect(url_for("get_categories"))
+        
+        else:
+            return render_template("editcategory.html", category=the_category, form=form)
+    
+    else:
+        flash("You need to log in first...", "warning")
+        return redirect(url_for("log_user_in"))
+
+@app.route("/delete_category/<category_id>")
+def delete_category(category_id):
+    """
+    Function to delete a category from the database, check first if user logged in
+    """
+    if g.user:
+        mongo.db.categories.remove({"_id" : ObjectId(category_id)})
+        return redirect(url_for("get_categories"))
+    else:
+        flash("You need to log in first...", "warning")
+        return redirect(url_for("log_user_in"))
+
+
+# Spacer to prevent collapse
 """
 Management (CRUD) of reviews collection in database
 """  
-
-
 @app.route("/check_review_exists/<book_id>")
 def check_review_exists(book_id):
     """
@@ -261,7 +351,6 @@ def check_review_exists(book_id):
             flash("You need to log in first...", "warning")
             return redirect(url_for("log_user_in"))
     
-
 @app.route("/add_review/<book_id>", methods=["GET", "POST"])
 def add_review(book_id):
     """
@@ -337,10 +426,6 @@ def edit_review(book_id):
         flash("You need to log in first...", "warning")
         return redirect(url_for("log_user_in"))
 
-"""
-Management (CRUD) of categories collection in database
-"""
-
 @app.route("/delete_review/<book_id>")
 def delete_review(book_id):
     """
@@ -363,97 +448,7 @@ def delete_review(book_id):
         return redirect(url_for("log_user_in"))
 
 
-@app.route("/get_categories")
-def get_categories():
-    """
-    Function to fetch categories from database and render to html
-    """
-    
-    return render_template("categories.html", categories=mongo.db.categories.find())
-
-
-@app.route("/add_category", methods=["GET","POST"])
-def add_category():
-    """
-    Function to load WTForm for adding category and render to html and add to
-    database.  Checks first whether a user is logged in, before performing
-    function.
-    
-    WTForms code adapted from Corey Shafer's tutorial found at
-    https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
-    """
-    
-    if g.user:
-        form = CategoryForm()
-        if form.validate_on_submit():
-            flash(f"New category created: {form.category_name.data}!", "success")
-            
-            category = {
-                "category_name" : form.category_name.data.lower(),
-                "cover_url" : form.cover_url.data,
-                "csrf_token" : form.csrf_token.data 
-            }
-            
-            categories = mongo.db.categories
-            categories.insert_one(category)
-            
-            return redirect(url_for("get_categories"))
-        
-        else:
-            return render_template("addcategory.html", form=form)
-    
-    else:
-        flash("You need to log in first...", "warning")
-        return redirect(url_for("log_user_in"))
-   
- 
-@app.route("/edit_category/<category_id>", methods=["GET", "POST"])
-def edit_category(category_id):
-    """
-    Function to load form for a category to be changed and render to html.
-    Checks first whether a user is logged in, before performing
-    function.
-    """
-    
-    if g.user:
-        form = CategoryForm()
-        the_category = mongo.db.categories.find_one({"_id": ObjectId(category_id)})
-        if form.validate_on_submit():
-            flash(f"Category successfully edited: {form.category_name.data}!", "success")
-            
-            categories = mongo.db.categories
-            categories.update({"_id": ObjectId(category_id)},
-            {
-                "category_name" : form.category_name.data.lower(),
-                "cover_url" : form.cover_url.data,
-                "csrf_token" : form.csrf_token.data
-            })
-            
-            return redirect(url_for("get_categories"))
-        
-        else:
-            return render_template("editcategory.html", category=the_category, form=form)
-    
-    else:
-        flash("You need to log in first...", "warning")
-        return redirect(url_for("log_user_in"))
-
-
-@app.route("/delete_category/<category_id>")
-def delete_category(category_id):
-    """
-    Function to delete a category from the database, check first if user logged in
-    """
-    if g.user:
-        mongo.db.categories.remove({"_id" : ObjectId(category_id)})
-        return redirect(url_for("get_categories"))
-    else:
-        flash("You need to log in first...", "warning")
-        return redirect(url_for("log_user_in"))
-
-
-
-
+# Spacer to prevent collapse
 """
 Management (CRUD) of comments collection in database
 """    
@@ -527,7 +522,6 @@ def edit_comment(comment_id):
         flash("You need to log in first...", "warning")
         return redirect(url_for("log_user_in"))
 
-
 @app.route("/delete_comment/<comment_id>")
 def delete_comment(comment_id):
     """
@@ -550,22 +544,25 @@ def delete_comment(comment_id):
         return redirect(url_for("log_user_in"))
 
 
+# Spacer to prevent collapse
 """
 Management (CRUD) of users collection in database
 """
-
-
 @app.route("/get_users")
 def get_users():
     """
     Function to fetch users from database and render to html
     """
     
-    return render_template("users.html", users=mongo.db.users.find())
+    if g.user:
+        return render_template("users.html", users=mongo.db.users.find())
+    else:
+        flash("You need to login first...", "warning")
+        return redirect(url_for('log_user_in'))
 
 def user_exists(search_type, user_detail):
     """
-    Function to validate if username or email is already taken in database
+    Function to validate if username or email is already taken in database, provides assistance to add_user function
     """
     
     the_user = mongo.db.users.find_one({str(search_type): str(user_detail)})
@@ -574,7 +571,6 @@ def user_exists(search_type, user_detail):
         return True
     else:
         return False
-
 
 @app.route("/add_user", methods=["GET","POST"])
 def add_user():
@@ -625,7 +621,7 @@ def add_user():
             users = mongo.db.users
             users.insert_one(user)
             
-            return redirect(url_for("login_user"))
+            return redirect(url_for("log_user_in"))
         else:
             
             return render_template("adduser.html", form=form)
@@ -633,7 +629,6 @@ def add_user():
     else:
         flash("You are already logged on!", "warning")
         return redirect(url_for('home_screen'))
-
 
 @app.route("/log_user_in", methods=["GET","POST"])
 def log_user_in():
@@ -664,37 +659,81 @@ def log_user_in():
     
     return render_template("loginuser.html", form=form)
     
-
-@app.route("/edit_user/<user_id>")
+@app.route("/edit_user/<user_id>", methods=["GET", "POST"])
 def edit_user(user_id):
     """
     Function to load form for a user to be editted and render to html
+    
+    Bug:  Form reverts to old info if user changes name/email, but one of fields exists for another user
     """
-    
-    the_user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
-    
-    return render_template("edituser.html", user=the_user)
-    
 
-@app.route("/update_user/<user_id>", methods=["POST"])
-def update_user(user_id):
-    """
-    Function to update database with revised user information
-    """
-    
-    users = mongo.db.users
-    users.update({"_id": ObjectId(user_id)},
-    {
-        "fname" : request.form.get("fname"),
-        "lname" : request.form.get("lname"),
-        "email" : request.form.get("email"),
-        "phone" : request.form.get("phone"),
-        "username" : request.form.get("username"),
-        "password" : request.form.get("password")
-    })
-    
-    return redirect(url_for("get_users"))
-
+    if g.user:
+        the_user = mongo.db.users.find_one({"_id" : ObjectId(user_id)})
+        print(the_user["_id"])
+        print(g.user)
+        if g.user == str(the_user["_id"]):
+            form = UpdateProfileForm()
+            if form.validate_on_submit():
+                print("Username: " + str(form.username.data.lower()))
+                print("Email: " + str(form.email.data.lower()))
+            
+                username_exist = user_exists("username", form.username.data.lower())
+                email_exist = user_exists("email", form.email.data.lower())
+                
+                username_error = "That username already exists.  Please choose a different one..."
+                email_error = "That email already exists.  Please choose a different one..."
+                
+                if username_exist == True and email_exist == True:
+                    if the_user["username"] != form.username.data.lower() and the_user["email"] != form.email.data.lower():
+                        print("Username and email same as someone elses")
+                        return render_template("edituser.html", form=form, username_error=username_error, email_error=email_error, user=the_user)
+                    elif the_user["username"] == form.username.data.lower() and the_user["email"] != form.email.data.lower():
+                        print("Email same as someone elses")
+                        return render_template("edituser.html", form=form, email_error=email_error, user=the_user)
+                    elif the_user["username"] != form.username.data.lower() and the_user["email"] == form.email.data.lower():
+                        print("Username same as someone elses")
+                        return render_template("edituser.html", form=form, username_error=username_error, user=the_user)
+                    else:
+                        print("Username and email same as previous info")
+                
+                elif username_exist == True and email_exist != True:
+                    if the_user["username"] != form.username.data.lower():
+                        print("Username same as someone elses")
+                        return render_template("edituser.html", form=form, username_error=username_error, user=the_user)
+                    else:
+                        print("Username same as previous info")
+                
+                elif username_exist != True and email_exist == True:
+                    if the_user["email"] != form.email.data.lower():
+                        print("Email same as someone elses")
+                        return render_template("edituser.html", form=form, email_error=email_error, user=the_user)
+                    else:
+                        print("Email same as previous info")
+                
+                flash(f"Account profile updated! You need to log in again...", "success")
+                
+                users = mongo.db.users
+                users.update({"_id": ObjectId(user_id)},
+                {
+                    "fname" : form.fname.data.lower(),
+                    "lname" : form.lname.data.lower(),
+                    "email" : form.email.data.lower(),
+                    "username" : form.username.data.lower(),
+                    "password" : the_user["password"],
+                    "csrf_token" : form.csrf_token.data
+                })
+                
+                return redirect(url_for('close_session'))
+                
+            else:
+                return render_template("edituser.html", form=form, user=the_user)
+        
+        else:
+            flash("You cannot edit this user profile, as it belongs to someone else...", "danger")
+            return redirect(url_for('get_users'))
+    else:
+        flash("You need to log in first...", "warning")
+        return redirect(url_for("log_user_in"))
 
 @app.route("/delete_user/<user_id>")
 def delete_user(user_id):
@@ -718,9 +757,11 @@ def delete_user(user_id):
         flash("You need to log in first...", "warning")
         return redirect(url_for("log_user_in"))
    
-#    return redirect(url_for("get_users"))
 
-
+# Spacer to prevent collapse
+"""
+Functions to assist with session management
+"""
 @app.route("/get_session")
 def get_session():
     """
@@ -739,7 +780,7 @@ def get_session():
         print("Session Not Active: ")
         print(session)
         print("User NOT logged in!")
-        return redirect(url_for('home_screen'))
+        return redirect(url_for('log_user_in'))
 
 @app.route("/close_session")
 def close_session():
@@ -752,15 +793,7 @@ def close_session():
     print("Session Closed: ")
     print(session)
     print("User logged OUT!")
-    return redirect(url_for('home_screen'))
-
-
-@app.route("/protected")
-def protected():
-    if g.user:
-        return render_template("protected.html")
-    flash("You need to log in first...", "warning")
-    return redirect(url_for("log_user_in"))
+    return redirect(url_for('log_user_in'))
 
 @app.before_request
 def before_request():
@@ -769,6 +802,10 @@ def before_request():
         g.user = session["user"]
 
 
+# Spacer to prevent collapse
+"""
+Call to run the app
+"""
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),
             port=int(os.environ.get("PORT")),

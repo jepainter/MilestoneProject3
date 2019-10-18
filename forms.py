@@ -29,7 +29,16 @@ class RegistrationForm(FlaskForm):
     username = StringField("Username", validators=[DataRequired(), Length(min=2, max=30)])
     password = PasswordField("Password", validators=[DataRequired(), Length(min=8, max=16)])
     confirm_password = PasswordField("Confirm Password", validators=[DataRequired(), EqualTo("password")])
-    
+
+class UpdateProfileForm(FlaskForm):
+    """
+    Form to capture and validate registration of users
+    """
+    fname = StringField("First Name", validators=[DataRequired(), Length(min=2)])
+    lname = StringField("Surname", validators=[DataRequired(), Length(min=2)])
+    email = StringField("Email", validators=[DataRequired(), Email()])
+    username = StringField("Username", validators=[DataRequired(), Length(min=2, max=30)])
+
 
 class LogInForm(FlaskForm):
     """
