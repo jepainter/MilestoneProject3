@@ -1,19 +1,35 @@
 {% extends "base.html" %} {% block content %}
+<section class="container-fluid"> 
 <div class="row justify-content-around">
     <div class="col-10">
-        <h1>Categories</h1>
+        <h1 class="fnt-clr-red">Categories</h1>
         <p>This is the categories page</p>
     </div>
 </div>
 
 <div class="row justify-content-around">
     <div class="col-10">
-        {% for category in categories %}
-        <div class="card">
-            <label>{{ category.category_name.capitalize() }}</label>
-            <a href="">Edit</a><a href="">Delete</a>
+        <div class="row align-items-top justify-content-around">
+            {% for category in categories %}
+            <div class="col-12 col-md-6 col-lg-4 bottom-margin">
+                <a class="no-text-decor" href="{{ url_for('get_books', category_id=category._id) }}">
+                    <div class="card bg-clr-transparent no-border">
+                        <img class="crd-img" src="{{ category.cover_url }}" alt="Image for {{ category.category_name.title() }}"/>
+                        <div class="card-body bg-clr-white">
+                            <h3 class="card-header">{{ category.category_name.title() }}</h3>
+                            {% if user %}
+                            <ul class="list-group list-group-flush bg-clr-transparent">
+                                <li class="list-group-item bg-clr-transparent"><a href="{{ url_for('edit_category', category_id=category._id) }}">Edit Category</a></li>
+                                <li class="list-group-item bg-clr-transparent"><a href="{{ url_for('delete_category', category_id=category._id) }}">Delete Category</a></li>
+                            </ul>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
 </div>
+</section>
 {% endblock %}

@@ -30,7 +30,7 @@ def home_screen():
     """
     Function for rendering landing page
     """
-    return render_template("index.html", categories=mongo.db.categories.find())
+    return render_template("index.html", categories=mongo.db.categories.find().sort("category_name"))
 
 
 # Spacer to prevent collapse
@@ -47,10 +47,10 @@ def get_books(category_id):
     merged_result={}
     
     if category_id != "":
-        books=mongo.db.books.find({"category_id": category_id})
+        books=mongo.db.books.find({"category_id": category_id}).sort("title")
    
     elif category_id == "":
-        books=mongo.db.books.find()
+        books=mongo.db.books.find().sort("title")
     
     #Populate new dictionary with results from book collection retrieval
     for book in books:
@@ -78,7 +78,7 @@ def get_books(category_id):
             else:
                 pass
     
-    return render_template("books.html", books=merged_result, categories=mongo.db.categories.find())
+    return render_template("books.html", books=merged_result, categories=mongo.db.categories.find().sort("category_name"))
 
 @app.route("/get_book/<book_id>")
 def get_book(book_id):
@@ -163,7 +163,7 @@ def add_book():
             return redirect(url_for("get_books"))
         
         else:
-            return render_template("addbook.html", form=form, categories=mongo.db.categories.find())
+            return render_template("addbook.html", form=form, categories=mongo.db.categories.find().sort("category_name"))
     
     else:
         flash("You need to log in first...", "warning")
@@ -221,11 +221,22 @@ def delete_book(book_id):
     """
     Function to delete a book from the database, checks whether user is logged
     in and only allows user to delete own books submitted.  Function deletes
-    reviews and comments from db as well, as there is no use to keep info.
+    reviews and comments from db as well, as there is no use to keep info. 
+    Super user can delete any book and associated reviews and comments.
     """
     if g.user:
         the_book = mongo.db.books.find_one({"_id" : ObjectId(book_id)})
-        if g.user == the_book["user_id"]:
+        super_user = mongo.db.users.find_one({"username": "ubradmin" })
+        if g.user == str(super_user["_id"]):
+            flash("Book and associated info deleted by ADMIN!", "success")
+            print("Remove Book")
+            mongo.db.books.remove({"_id" : ObjectId(book_id)})
+            print("Remove Review")
+            mongo.db.reviews.remove({"book_id" : book_id})
+            print("Remove Comments")
+            mongo.db.comments.remove({"book_id" : book_id})
+            return redirect(url_for('get_books'))
+        elif g.user == the_book["user_id"]:
             flash("Book and associated info deleted from site.", "success")
             print("Remove Book")
             mongo.db.books.remove({"_id" : ObjectId(book_id)})
@@ -254,8 +265,14 @@ def get_categories():
     """
     Function to fetch categories from database and render to html
     """
-    
-    return render_template("categories.html", categories=mongo.db.categories.find())
+    all_categories=mongo.db.categories.find().sort("category_name")
+    super_user = mongo.db.users.find_one({"username": "ubradmin" })
+    if g.user == str(super_user["_id"]):
+        print("Logged in as super user")
+        return render_template("categories.html", categories=all_categories, user=g.user)
+    else:
+        print("Logged in as other user")
+        return render_template("categories.html", categories=all_categories)
 
 @app.route("/add_category", methods=["GET","POST"])
 def add_category():
@@ -328,8 +345,14 @@ def delete_category(category_id):
     Function to delete a category from the database, check first if user logged in
     """
     if g.user:
-        mongo.db.categories.remove({"_id" : ObjectId(category_id)})
-        return redirect(url_for("get_categories"))
+        super_user = mongo.db.users.find_one({"username": "ubradmin" })
+        if g.user == str(super_user["_id"]):
+            flash("Category deleted by ADMIN!", "success")
+            mongo.db.categories.remove({"_id" : ObjectId(category_id)})
+            return redirect(url_for("get_categories"))
+        else:
+            flash("You cannot delete categories, you do not have the correct privileges...", "danger")
+            return redirect(url_for("get_categories"))
     else:
         flash("You need to log in first...", "warning")
         return redirect(url_for("log_user_in"))
@@ -436,11 +459,17 @@ def edit_review(book_id):
 def delete_review(book_id):
     """
     Function to delete a review from the database, checks whether user is logged
-    in and only allows user to delete own reviews.
+    in and only allows user to delete own reviews. Super user can delete any
+    reviews.
     """
     if g.user:
         the_review = mongo.db.reviews.find_one({"book_id" : book_id})
-        if g.user == the_review["user_id"]:
+        super_user = mongo.db.users.find_one({"username": "ubradmin" })
+        if g.user == str(super_user["_id"]):
+            flash("User review deleted by ADMIN!", "success")
+            mongo.db.reviews.remove({"_id" : the_review["_id"]})
+            return redirect(url_for('get_book', book_id=book_id))
+        elif g.user == the_review["user_id"]:
             flash("Review deleted from site.", "success")
             mongo.db.reviews.remove({"_id" : the_review["_id"]})
             return redirect(url_for('get_book', book_id=book_id))
@@ -532,11 +561,17 @@ def edit_comment(comment_id):
 def delete_comment(comment_id):
     """
     Function to delete a review from the database, checks whether user is logged
-    in and only allows user to delete own reviews.
+    in and only allows user to delete own reviews.  Super user can delete any
+    comments.
     """
     if g.user:
         the_comment = mongo.db.comments.find_one({"_id" : ObjectId(comment_id)})
-        if g.user == the_comment["user_id"]:
+        super_user = mongo.db.users.find_one({"username": "ubradmin" })
+        if g.user == str(super_user["_id"]):
+            flash("User comment deleted by ADMIN!", "success")
+            mongo.db.comments.remove({"_id" : the_comment["_id"]})
+            return redirect(url_for('get_book', book_id=the_comment["book_id"]))
+        elif g.user == the_comment["user_id"]:
             flash("Comment deleted from for book.", "success")
             mongo.db.comments.remove({"_id" : the_comment["_id"]})
             return redirect(url_for('get_book', book_id=the_comment["book_id"]))
@@ -755,15 +790,24 @@ def edit_user(user_id):
 def delete_user(user_id):
     """
     Function to delete a user from the database, checks whether user is logged
-    in and only allows user to delete own account.
+    in and only allows user to delete own account.  Deleting user account will 
+    also delete the users comments, but not the review.  Super user can delete
+    any account and associated comments.
     """
     if g.user:
-        if g.user == user_id:
-            flash("User profile deleted", "success")
+        super_user = mongo.db.users.find_one({"username": "ubradmin" })
+        if g.user == str(super_user["_id"]):
+            flash("User profile and associated comments deleted by ADMIN!", "success")
             print("Removing user from db")
-            #mongo.db.users.remove({"_id" : ObjectId(user_id)})
+            mongo.db.users.remove({"_id" : ObjectId(user_id)})
+            mongo.db.comments.remove({"user_id" : user_id})
+            return redirect(url_for("get_users"))
+        elif g.user == user_id:
+            flash("User profile and associated comments deleted", "success")
+            print("Removing user from db")
+            mongo.db.users.remove({"_id" : ObjectId(user_id)})
+            mongo.db.comments.remove({"user_id" : user_id})
             return close_session()
-            
         else:
             flash("You cannot remove this user, you do not have the relevant privileges...", "danger")
             print("User not removed, not same id")
