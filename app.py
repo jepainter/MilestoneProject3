@@ -6,6 +6,7 @@ from datetime import date
 from flask import Flask, render_template, request, redirect, url_for, flash, session, g
 from flask_pymongo import PyMongo
 from flask_bcrypt import Bcrypt
+#from flask_talisman import Talisman
 from bson.objectid import ObjectId
 from forms import RegistrationForm, UpdateProfileForm, LogInForm, BookForm, CategoryForm, CommentForm, ReviewForm
 
@@ -18,6 +19,7 @@ app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
 mongo = PyMongo(app)
 bcrypt = Bcrypt(app)
+#talisman = Talisman(app)
 
 
 # Spacer to prevent collapse
@@ -30,7 +32,14 @@ def home_screen():
     """
     Function for rendering landing page
     """
-    return render_template("index.html", categories=mongo.db.categories.find().sort("category_name"))
+    if g.user:
+        super_user = mongo.db.users.find_one({"username": "ubradmin" })
+        if g.user == str(super_user["_id"]):
+            return render_template("index.html", categories=mongo.db.categories.find().sort("category_name"), super_user=g.user)
+        else:
+            return render_template("index.html", categories=mongo.db.categories.find().sort("category_name"), regular_user=g.user)
+    else:
+        return render_template("index.html", categories=mongo.db.categories.find().sort("category_name"))
 
 
 # Spacer to prevent collapse
@@ -78,7 +87,14 @@ def get_books(category_id):
             else:
                 pass
     
-    return render_template("books.html", books=merged_result, categories=mongo.db.categories.find().sort("category_name"))
+    if g.user:
+        super_user = mongo.db.users.find_one({"username": "ubradmin" })
+        if g.user == str(super_user["_id"]):
+            return render_template("books.html", books=merged_result, categories=mongo.db.categories.find().sort("category_name"), super_user=g.user)
+        else:
+            return render_template("books.html", books=merged_result, categories=mongo.db.categories.find().sort("category_name"), regular_user=g.user)
+    else:
+        return render_template("books.html", books=merged_result, categories=mongo.db.categories.find().sort("category_name"))
 
 @app.route("/get_book/<book_id>")
 def get_book(book_id):
@@ -126,7 +142,14 @@ def get_book(book_id):
             "username" : "No reviewer yet"
         }
     
-    return render_template("book.html", book=the_book, category=the_category, user=the_user, comments=the_comments, review=the_review, reviewer=the_reviewer, commenters=the_commenters)
+    if g.user:
+        super_user = mongo.db.users.find_one({"username": "ubradmin" })
+        if g.user == str(super_user["_id"]):
+            return render_template("book.html", book=the_book, category=the_category, user=the_user, comments=the_comments, review=the_review, reviewer=the_reviewer, commenters=the_commenters, super_user=g.user)
+        else:
+            return render_template("book.html", book=the_book, category=the_category, user=the_user, comments=the_comments, review=the_review, reviewer=the_reviewer, commenters=the_commenters, regular_user=g.user)
+    else:
+        return render_template("book.html", book=the_book, category=the_category, user=the_user, comments=the_comments, review=the_review, reviewer=the_reviewer, commenters=the_commenters)
 
 @app.route("/add_book", methods=["GET", "POST"])
 def add_book():
@@ -163,7 +186,11 @@ def add_book():
             return redirect(url_for("get_books"))
         
         else:
-            return render_template("addbook.html", form=form, categories=mongo.db.categories.find().sort("category_name"))
+            super_user = mongo.db.users.find_one({"username": "ubradmin" })
+            if g.user == str(super_user["_id"]):
+                return render_template("addbook.html", form=form, categories=mongo.db.categories.find().sort("category_name"), super_user=g.user)
+            else:
+                return render_template("addbook.html", form=form, categories=mongo.db.categories.find().sort("category_name"), regular_user=g.user)
     
     else:
         flash("You need to log in first...", "warning")
@@ -204,10 +231,12 @@ def edit_book(book_id):
                 return redirect(url_for("get_book", book_id=book_id))
             
             else:
+                super_user = mongo.db.users.find_one({"username": "ubradmin" })
+                if g.user == str(super_user["_id"]):
+                    return render_template("editbook.html", book=the_book, categories=all_categories, form=form, super_user=g.user)
+                else:
+                    return render_template("editbook.html", book=the_book, categories=all_categories, form=form, regular_user=g.user)
                 
-                print(the_book)
-                return render_template("editbook.html", book=the_book, categories=all_categories, form=form)
-        
         else:
             flash("You cannot edit this book's details, as it was uploaded by someone else...", "danger")
             return redirect(url_for("get_book", book_id=book_id))
@@ -229,26 +258,19 @@ def delete_book(book_id):
         super_user = mongo.db.users.find_one({"username": "ubradmin" })
         if g.user == str(super_user["_id"]):
             flash("Book and associated info deleted by ADMIN!", "success")
-            print("Remove Book")
             mongo.db.books.remove({"_id" : ObjectId(book_id)})
-            print("Remove Review")
             mongo.db.reviews.remove({"book_id" : book_id})
-            print("Remove Comments")
             mongo.db.comments.remove({"book_id" : book_id})
             return redirect(url_for('get_books'))
         elif g.user == the_book["user_id"]:
             flash("Book and associated info deleted from site.", "success")
-            print("Remove Book")
             mongo.db.books.remove({"_id" : ObjectId(book_id)})
-            print("Remove Review")
             mongo.db.reviews.remove({"book_id" : book_id})
-            print("Remove Comments")
             mongo.db.comments.remove({"book_id" : book_id})
             return redirect(url_for('get_books'))
             
         else:
             flash("You cannot delete that book, as it was uploaded by someone else...", "danger")
-            print("Book not removed, not same id")
             return redirect(url_for("get_books"))
     
     else:
@@ -268,10 +290,10 @@ def get_categories():
     all_categories=mongo.db.categories.find().sort("category_name")
     super_user = mongo.db.users.find_one({"username": "ubradmin" })
     if g.user == str(super_user["_id"]):
-        print("Logged in as super user")
-        return render_template("categories.html", categories=all_categories, user=g.user)
+        return render_template("categories.html", categories=all_categories, super_user=g.user)
+    elif g.user:
+        return render_template("categories.html", categories=all_categories, regular_user=g.user)
     else:
-        print("Logged in as other user")
         return render_template("categories.html", categories=all_categories)
 
 @app.route("/add_category", methods=["GET","POST"])
@@ -285,7 +307,8 @@ def add_category():
     https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3 
     """
     
-    if g.user:
+    super_user = mongo.db.users.find_one({"username": "ubradmin" })
+    if g.user == str(super_user["_id"]):
         form = CategoryForm()
         if form.validate_on_submit():
             flash(f"New category created: {form.category_name.data}!", "success")
@@ -302,11 +325,11 @@ def add_category():
             return redirect(url_for("get_categories"))
         
         else:
-            return render_template("addcategory.html", form=form)
+            return render_template("addcategory.html", form=form, super_user=g.user)
     
     else:
-        flash("You need to log in first...", "warning")
-        return redirect(url_for("log_user_in"))
+        flash("You cannot add categories, you do not have the correct privileges...", "danger")
+        return redirect(url_for("get_categories"))
    
 @app.route("/edit_category/<category_id>", methods=["GET", "POST"])
 def edit_category(category_id):
@@ -316,7 +339,8 @@ def edit_category(category_id):
     function.
     """
     
-    if g.user:
+    super_user = mongo.db.users.find_one({"username": "ubradmin" })
+    if g.user == str(super_user["_id"]):
         form = CategoryForm()
         the_category = mongo.db.categories.find_one({"_id": ObjectId(category_id)})
         if form.validate_on_submit():
@@ -333,29 +357,60 @@ def edit_category(category_id):
             return redirect(url_for("get_categories"))
         
         else:
-            return render_template("editcategory.html", category=the_category, form=form)
-    
+            return render_template("editcategory.html", category=the_category, form=form, super_user=g.user)
+        
     else:
-        flash("You need to log in first...", "warning")
+        flash("You cannot edit categories, you do not have the correct privileges...", "danger")
         return redirect(url_for("log_user_in"))
 
 @app.route("/delete_category/<category_id>")
 def delete_category(category_id):
     """
-    Function to delete a category from the database, check first if user logged in
+    Function to delete a category from the database, check first if user logged in 
     """
-    if g.user:
-        super_user = mongo.db.users.find_one({"username": "ubradmin" })
-        if g.user == str(super_user["_id"]):
-            flash("Category deleted by ADMIN!", "success")
-            mongo.db.categories.remove({"_id" : ObjectId(category_id)})
-            return redirect(url_for("get_categories"))
-        else:
-            flash("You cannot delete categories, you do not have the correct privileges...", "danger")
-            return redirect(url_for("get_categories"))
+    super_user = mongo.db.users.find_one({"username": "ubradmin" })
+    if g.user == str(super_user["_id"]):
+        flash("Category successfully deleted!", "success")
+        mongo.db.categories.remove({"_id" : ObjectId(category_id)})
+        return redirect(url_for("get_categories"))
     else:
-        flash("You need to log in first...", "warning")
-        return redirect(url_for("log_user_in"))
+        flash("You cannot delete categories, you do not have the correct privileges...", "danger")
+        return redirect(url_for("get_categories"))
+
+
+"""
+Management (CRUD) of up and down votes in database
+"""
+@app.route("/up_vote/<book_id>", methods=["GET","POST"])
+def up_vote(book_id):
+    """
+    Function to add an up vote to a book.  Up votes are not dependent on user being logged in.
+    """
+    books = mongo.db.books
+    the_book = mongo.db.books.find_one({"_id" : ObjectId(book_id)})
+    new_up_vote = the_book["up_votes"] + 1
+    print(the_book["up_votes"])
+    print(new_up_vote)
+    print(the_book)
+    books.update_one({"_id" : ObjectId(book_id)}, { "$set" : {"up_votes" : new_up_vote}})
+    print(the_book)
+    return redirect(url_for("get_book", book_id=book_id))
+
+
+@app.route("/down_vote/<book_id>", methods=["GET","POST"])
+def down_vote(book_id):
+    """
+    Function to down an up vote to a book.  Up votes are not dependent on user being logged in.
+    """
+    books = mongo.db.books
+    the_book = mongo.db.books.find_one({"_id" : ObjectId(book_id)})
+    new_down_vote = the_book["down_votes"] + 1
+    print(the_book["down_votes"])
+    print(new_down_vote)
+    print(the_book)
+    books.update_one({"_id" : ObjectId(book_id)}, { "$set" : {"down_votes" : new_down_vote}})
+    print(the_book)
+    return redirect(url_for("get_book", book_id=book_id))
 
 
 # Spacer to prevent collapse
@@ -409,7 +464,11 @@ def add_review(book_id):
             return redirect(url_for("get_book", book_id=book_id))
             
         else:
-            return render_template("addreview.html", form=form, book_id=book_id)
+            super_user = mongo.db.users.find_one({"username": "ubradmin" })
+            if g.user == str(super_user["_id"]):
+                return render_template("addreview.html", form=form, book_id=book_id, super_user=g.user)
+            else:
+                return render_template("addreview.html", form=form, book_id=book_id, regular_user=g.user)
         
     else:
         flash("You need to log in first...", "warning")
@@ -445,7 +504,11 @@ def edit_review(book_id):
                 return redirect(url_for("get_book", book_id=book_id))
             
             else:
-                return render_template("editreview.html", book_id=book_id, review=the_review, form=form)
+                super_user = mongo.db.users.find_one({"username": "ubradmin" })
+                if g.user == str(super_user["_id"]):
+                    return render_template("editreview.html", book_id=book_id, review=the_review, form=form, super_user=g.user)
+                else:
+                    return render_template("editreview.html", book_id=book_id, review=the_review, form=form, regular_user=g.user)
                 
         else:
             flash("You cannot edit this review, as it was uploaded by someone else...", "danger")
@@ -515,7 +578,12 @@ def add_comment(book_id):
             return redirect(url_for("get_book", book_id=book_id))
             
         else:
-            return render_template("addcomment.html", form=form, book_id=book_id)
+            super_user = mongo.db.users.find_one({"username": "ubradmin" })
+            if g.user == str(super_user["_id"]):
+                return render_template("addcomment.html", form=form, book_id=book_id, super_user=g.user)
+            else:
+                return render_template("addcomment.html", form=form, book_id=book_id, regular_user=g.user)
+            
     else:
         flash("You need to log in first...", "warning")
         return redirect(url_for("log_user_in"))
@@ -548,8 +616,11 @@ def edit_comment(comment_id):
                 return redirect(url_for("get_book", book_id=the_comment["book_id"]))
                 
             else:
-                return render_template("editcomment.html", form=form, comment=the_comment)
-        
+                super_user = mongo.db.users.find_one({"username": "ubradmin" })
+                if g.user == str(super_user["_id"]):
+                    return render_template("editcomment.html", form=form, comment=the_comment, super_user=g.user)
+                else:
+                    return render_template("editcomment.html", form=form, comment=the_comment, regular_user=g.user)
         else:
             flash("You cannot edit this comment, as it was made by someone else...", "danger")
             return redirect(url_for('get_book', book_id=the_comment["book_id"]))
@@ -598,15 +669,11 @@ def get_users():
     if g.user:
         super_user = mongo.db.users.find_one({"username": "ubradmin" })
         if g.user == str(super_user["_id"]):
-            print("Super User")
             users = mongo.db.users.find()
-            print(users)
-            return render_template("users.html", users=users)
+            return render_template("users.html", users=users, super_user=g.user)
         else:
-            print("Regular User")
-            print(g.user)
             user = mongo.db.users.find_one({"_id": ObjectId(g.user)})
-            return render_template("users.html", user=user)
+            return render_template("users.html", user=user, regular_user=g.user)
     else:
         flash("You need to login first...", "warning")
         return redirect(url_for('log_user_in'))
@@ -704,9 +771,9 @@ def log_user_in():
                         session["user"] = str(user["_id"])
                         return redirect(url_for('home_screen'))
                     else:
-                        flash(f"Log in unsuccessful!  Check your email and password.", "danger")
+                        flash(f"Log in unsuccessful!  Check your email and password.", "warning")
         else:
-            flash(f"Log in unsuccessful!  Check your email and password.", "danger")
+            flash(f"Log in unsuccessful!  Check your email and password.", "warning")
     
     return render_template("loginuser.html", form=form)
     
@@ -720,14 +787,9 @@ def edit_user(user_id):
 
     if g.user:
         the_user = mongo.db.users.find_one({"_id" : ObjectId(user_id)})
-        print(the_user["_id"])
-        print(g.user)
         if g.user == str(the_user["_id"]):
             form = UpdateProfileForm()
             if form.validate_on_submit():
-                print("Username: " + str(form.username.data.lower()))
-                print("Email: " + str(form.email.data.lower()))
-            
                 username_exist = user_exists("username", form.username.data.lower())
                 email_exist = user_exists("email", form.email.data.lower())
                 
@@ -736,30 +798,19 @@ def edit_user(user_id):
                 
                 if username_exist == True and email_exist == True:
                     if the_user["username"] != form.username.data.lower() and the_user["email"] != form.email.data.lower():
-                        print("Username and email same as someone elses")
-                        return render_template("edituser.html", form=form, username_error=username_error, email_error=email_error, user=the_user)
+                        return render_template("edituser.html", form=form, username_error=username_error, email_error=email_error, user=the_user, regular_user=g.user)
                     elif the_user["username"] == form.username.data.lower() and the_user["email"] != form.email.data.lower():
-                        print("Email same as someone elses")
-                        return render_template("edituser.html", form=form, email_error=email_error, user=the_user)
+                        return render_template("edituser.html", form=form, email_error=email_error, user=the_user, regular_user=g.user)
                     elif the_user["username"] != form.username.data.lower() and the_user["email"] == form.email.data.lower():
-                        print("Username same as someone elses")
-                        return render_template("edituser.html", form=form, username_error=username_error, user=the_user)
-                    else:
-                        print("Username and email same as previous info")
+                        return render_template("edituser.html", form=form, username_error=username_error, user=the_user, regular_user=g.user)
                 
                 elif username_exist == True and email_exist != True:
                     if the_user["username"] != form.username.data.lower():
-                        print("Username same as someone elses")
-                        return render_template("edituser.html", form=form, username_error=username_error, user=the_user)
-                    else:
-                        print("Username same as previous info")
+                        return render_template("edituser.html", form=form, username_error=username_error, user=the_user, regular_user=g.user)
                 
                 elif username_exist != True and email_exist == True:
                     if the_user["email"] != form.email.data.lower():
-                        print("Email same as someone elses")
-                        return render_template("edituser.html", form=form, email_error=email_error, user=the_user)
-                    else:
-                        print("Email same as previous info")
+                        return render_template("edituser.html", form=form, email_error=email_error, user=the_user, regular_user=g.user)
                 
                 flash(f"Account profile updated! You need to log in again...", "success")
                 
@@ -777,7 +828,7 @@ def edit_user(user_id):
                 return redirect(url_for('close_session'))
                 
             else:
-                return render_template("edituser.html", form=form, user=the_user)
+                return render_template("edituser.html", form=form, user=the_user, regular_user=g.user)
         
         else:
             flash("You cannot edit this user profile, as it belongs to someone else...", "danger")
@@ -798,19 +849,16 @@ def delete_user(user_id):
         super_user = mongo.db.users.find_one({"username": "ubradmin" })
         if g.user == str(super_user["_id"]):
             flash("User profile and associated comments deleted by ADMIN!", "success")
-            print("Removing user from db")
             mongo.db.users.remove({"_id" : ObjectId(user_id)})
             mongo.db.comments.remove({"user_id" : user_id})
             return redirect(url_for("get_users"))
         elif g.user == user_id:
             flash("User profile and associated comments deleted", "success")
-            print("Removing user from db")
             mongo.db.users.remove({"_id" : ObjectId(user_id)})
             mongo.db.comments.remove({"user_id" : user_id})
             return close_session()
         else:
             flash("You cannot remove this user, you do not have the relevant privileges...", "danger")
-            print("User not removed, not same id")
             return redirect(url_for("get_users"))
     
     else:
@@ -828,18 +876,8 @@ def get_session():
     Function to check session status
     """
     if "user" in session:
-        print("")
-        print("##Get Session##")
-        print("Session Active: ")
-        print(session["user"])
-        print("User logged in.")
         return redirect(url_for('home_screen'))
     else:
-        print("")
-        print("##Get Session##")
-        print("Session Not Active: ")
-        print(session)
-        print("User NOT logged in!")
         return redirect(url_for('log_user_in'))
 
 @app.route("/close_session")
@@ -848,11 +886,6 @@ def close_session():
     Function to force clossure of session
     """
     session.pop("user", None)
-    print("")
-    print("##Close Session##")
-    print("Session Closed: ")
-    print(session)
-    print("User logged OUT!")
     return redirect(url_for('log_user_in'))
 
 @app.before_request

@@ -6,24 +6,31 @@
     </div>
 </div>
 
-<div class="row align-items-center justify-content-around">
+<div class="row align-items-center justify-content-around bottom-margin">
     <div class="col-10">
         <div class="row align-items-center justify-content-around">
-            <div class="col-12 col-md-5 col-lg-4 bottom-margin">
+            <div class="col-12 col-md-5 col-lg-4">
                 <div class="card bottom-margin bg-clr-transparent no-border">
                     <img class="book-img" src="{{ book.cover_url }}" alt="Image of {{ book.title.title() }}"></img>
                 </div>
             </div>
             <div class="col-12 col-md-7 col-lg-8">
-                <div class="card bottom-margin no-border">
-                    <div class="card-body bg-clr-white">
+                <div class="card bg-clr-dark-red no-border">
+                    <div class="card-body">
                     <ul class="list-group list-group-flush bg-clr-transparent">
                         <li class="list-group-item bg-clr-dark-red"><h3>{{ book.title.title() }}</h3></li>
-                        <li class="list-group-item bg-clr-transparent"><h6>Author: </h6><h4>{{ book.author_fname.title() }} {{ book.author_lname.title() }}</h4></li>
-                        <li class="list-group-item bg-clr-transparent"><h6>Category: </h6><h4>{{ category.category_name.title() }}</h4></li>
-                        <li class="list-group-item bg-clr-transparent"><h6>Added By: </h6><h4>{{ user.username }}</h4></li>
-                        <li class="list-group-item bg-clr-transparent"><h6>Date Added: </h6><h4>{{ book.date_added }}</h4></li>
-                        <li class="list-group-item bg-clr-transparent"><h6>Votes: </h6><h4><i class="fas fa-arrow-alt-circle-up"></i> {{ book.up_votes }} | <i class="fas fa-arrow-alt-circle-down"></i> {{ book.down_votes }} </h4></li>
+                        <li class="list-group-item"><h6>Author: </h6><h4>{{ book.author_fname.title() }} {{ book.author_lname.title() }}</h4></li>
+                        <li class="list-group-item"><h6>Category: </h6><h4>{{ category.category_name.title() }}</h4></li>
+                        <li class="list-group-item"><h6>Added By: </h6><h4>{{ user.username }}</h4></li>
+                        <li class="list-group-item"><h6>Date Added: </h6><h4>{{ book.date_added }}</h4></li>
+                        <li class="list-group-item"><h6>Votes: </h6><h4><a role="button" href="{{ url_for('up_vote', book_id=book._id) }}"><i class="fas fa-arrow-alt-circle-up"></i></a> {{ book.up_votes }} | <a role="button" href="{{ url_for('down_vote', book_id=book._id) }}"><i class="fas fa-arrow-alt-circle-down"></i></a> {{ book.down_votes }} </h4></li>
+                        <li class="list-group-item">
+                            {% if super_user or regular_user == user._id|string()%}
+                            <a class="btn btn-warning" href="{{ url_for('edit_book', book_id=book._id) }}" role="button">Edit Book</a>
+                            <a class="btn btn-danger" href="{{ url_for('delete_book', book_id=book._id) }}" role="button">Delete Book</a>
+                            {% endif %}
+                            <a class="btn btn-success" href="#" role="button">Buy Book</a>
+                        </li>
                     </ul>
                     </div>
                 </div>
@@ -32,61 +39,62 @@
     </div>
 </div>
 
-<div class="row justify-content-around">
-    <div class="col-10 text-center">
-        <a class="btn btn-info bottom-margin" href="{{ url_for('edit_book', book_id=book._id) }}" role="button">Edit Book</a>
-        <a class="btn btn-danger bottom-margin" href="{{ url_for('delete_book', book_id=book._id) }}" role="button">Delete Book</a>
-        <a class="btn btn-success bottom-margin" href="#" role="button">Buy Book</a>
-    </div>
-</div>
-
-<div class="row justify-content-around">
+<div class="row justify-content-around bottom-margin">
     <div class="col-10">
-        <div class="card bottom-margin">
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item bg-clr-white"><h6>Reviewed By: </h6>{{ reviewer.username }}</li>
-                <li class="list-group-item bg-clr-white"><h6>Review Date: </h6>{{ review.date_added }}</li>
-                <li class="list-group-item"><h6>Review: </h6>{{ review.review.capitalize() }}</li>
-                <li class="list-group-item bg-clr-white">
-                    <a class="btn btn-info" href="{{ url_for('check_review_exists', book_id=book._id) }}" role="button">Add Review</a>
-                    <a class="btn btn-info" href="{{ url_for('edit_review', book_id=book._id) }}" role="button">Edit Review</a>
-                    <a class="btn btn-danger" href="{{ url_for('delete_review', book_id=book._id) }}" role="button">Delete Review</a>
-                </li>
-            </ul>
+        <div class="card bg-clr-dark-red no-border">
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><h6>Reviewed By: </h6>{{ reviewer.username }}</li>
+                    <li class="list-group-item"><h6>Review Date: </h6>{{ review.date_added }}</li>
+                    <li class="list-group-item"><h6>Review: </h6>{{ review.review }}</li>
+                    {% if review.review == "Not reviewed yet" %}
+                    <li class="list-group-item">
+                        <a class="btn btn-info" href="{{ url_for('check_review_exists', book_id=book._id) }}" role="button">Add Review</a>
+                    </li>
+                    {% elif super_user or regular_user == reviewer._id|string()%}
+                    <li class="list-group-item">
+                        <a class="btn btn-warning" href="{{ url_for('edit_review', book_id=book._id) }}" role="button">Edit Review</a>
+                        <a class="btn btn-danger" href="{{ url_for('delete_review', book_id=book._id) }}" role="button">Delete Review</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="row justify-content-around">
+<div class="row justify-content-around bottom-margin">
     <div class="col-10">
-        <div class="card bottom-margin">
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item"><h6>Comments: </h6></li>
-                <li class="list-group-item">
-                    <a class="btn btn-info" href="{{ url_for('add_comment', book_id=book._id) }}" role="button">Add Comment</a>
-                </li>
-                {% for comment in comments %}
-                    {% if comment.book_id == book._id|string() %}
-                        {% for commenter in commenters %}
-                            {% if comment.user_id == commenter._id|string() %}
-                                <li class="list-group-item">
-                                   <div class="row justify-content-around">
-                                   <div class="col-12 col-md-7 col-lg-10">
-                                        <p> {{commenter.username }} - {{ comment.book_id }} - {{ comment.comment.capitalize() }}</p>
-                                    </div>
-                                    <div class="col-12 col-md-2 col-lg-2">
-                                        <a class="btn btn-danger btn-sm" href="{{ url_for('edit_comment', comment_id=comment._id) }}" role="button">Edit</a>
-                                    </div>
-                                    <div class="col-12 col-md-2 col-lg-2">
-                                        <a class="btn btn-danger btn-sm" href="{{ url_for('delete_comment', comment_id=comment._id) }}" role="button">Delete</a>
-                                    </div>
-                                    </div>
-                                </li>
-                            {% endif %}
-                        {% endfor %}
-                    {% endif %}
-                {% endfor %}
-            </ul>
+        <div class="card bg-clr-dark-red no-border">
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><h6>Comments: </h6></li>
+                    <li class="list-group-item">
+                        <a class="btn btn-info" href="{{ url_for('add_comment', book_id=book._id) }}" role="button">Add Comment</a>
+                    </li>
+                    {% for comment in comments %}
+                        {% if comment.book_id == book._id|string() %}
+                            {% for commenter in commenters %}
+                                {% if comment.user_id == commenter._id|string() %}
+                                    <li class="list-group-item">
+                                       <div class="row">
+                                           <div class="col-12 col-md-7 col-lg-10">
+                                                <p><em>{{commenter.username }}</em> - "{{ comment.comment }}"</p>
+                                            </div>
+                                            {% if super_user or regular_user == commenter._id|string()%}
+                                            <div class="col-12 col-md-2 col-lg-2">
+                                                <a class="btn btn-warning btn-sm" href="{{ url_for('edit_comment', comment_id=comment._id) }}" role="button">Edit</a>
+                                                <a class="btn btn-danger btn-sm" href="{{ url_for('delete_comment', comment_id=comment._id) }}" role="button">Delete</a>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
     </div>
 </div>
