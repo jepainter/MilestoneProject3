@@ -6,7 +6,6 @@ from datetime import date
 from flask import Flask, render_template, request, redirect, url_for, flash, session, g
 from flask_pymongo import PyMongo
 from flask_bcrypt import Bcrypt
-#from flask_talisman import Talisman
 from bson.objectid import ObjectId
 from forms import RegistrationForm, UpdateProfileForm, LogInForm, BookForm, CategoryForm, CommentForm, ReviewForm
 
@@ -19,7 +18,6 @@ app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
 mongo = PyMongo(app)
 bcrypt = Bcrypt(app)
-#talisman = Talisman(app)
 
 
 # Spacer to prevent collapse
@@ -378,6 +376,7 @@ def delete_category(category_id):
         return redirect(url_for("get_categories"))
 
 
+# Spacer to prevent collapse
 """
 Management (CRUD) of up and down votes in database
 """
@@ -395,7 +394,6 @@ def up_vote(book_id):
     books.update_one({"_id" : ObjectId(book_id)}, { "$set" : {"up_votes" : new_up_vote}})
     print(the_book)
     return redirect(url_for("get_book", book_id=book_id))
-
 
 @app.route("/down_vote/<book_id>", methods=["GET","POST"])
 def down_vote(book_id):

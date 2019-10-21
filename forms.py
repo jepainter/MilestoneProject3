@@ -30,6 +30,7 @@ class RegistrationForm(FlaskForm):
     password = PasswordField("Password", validators=[DataRequired(), Length(min=8, max=16)])
     confirm_password = PasswordField("Confirm Password", validators=[DataRequired(), EqualTo("password")])
 
+
 class UpdateProfileForm(FlaskForm):
     """
     Form to capture and validate registration of users
