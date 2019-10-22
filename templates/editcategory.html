@@ -2,45 +2,44 @@
 <section class="container-fluid"> 
     <div class="row justify-content-around">
         <div class="col-10">
-            <h1 class="fnt-clr-red">Edit Category</h1>
-            <p>This is the edit category page</p>
+            <h1 class="section-headings fnt-clr-red">Edit Category</h1>
         </div>
     </div>
 
     <!-- Code adapted from Corey Shafer's tutorial found at
     https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3-->
     <div class="row justify-content-around">
-        <div class="col-10 bottom-margin">
+        <div class="col-10 bottom-margin bg-clr-darkest border-box">
             <form action="{{ url_for('edit_category', category_id=category._id) }}" method="POST">
                 {{ form.hidden_tag() }}
                 <fieldset class="form-group">
-                <legend>Edit an existing category</legend>
-                <div class="form-group">
-                    {{ form.category_name.label(class="col-form-label") }}
-                    {% if form.category_name.errors %}
-                        {{ form.category_name(class="form-control is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.category_name.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.category_name(class="form-control", placeholder="Enter the name of the category...", value=category.category_name.title()) }}
-                    {% endif %}
-                </div>
-                <div class="form-group">
-                    {{ form.cover_url.label(class="col-form-label") }}
-                    {% if form.cover_url.errors %}
-                        {{ form.cover_url(class="form-control is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.cover_url.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.cover_url(class="form-control", placeholder="Enter the cover link...", value=category.cover_url) }}
-                    {% endif %}
-                </div>
+                    <legend>Edit an existing category</legend>
+                    <div class="form-group">
+                        {{ form.category_name.label(class="col-form-label") }}
+                        {% if form.category_name.errors %}
+                            {{ form.category_name(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.category_name.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.category_name(class="form-control", placeholder="Enter the name of the category...", value=category.category_name.title()) }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.cover_url.label(class="col-form-label") }}
+                        {% if form.cover_url.errors %}
+                            {{ form.cover_url(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.cover_url.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.cover_url(class="form-control", placeholder="Enter the cover link...", value=category.cover_url) }}
+                        {% endif %}
+                    </div>
                 </fieldset>
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary">Update Category</button>
@@ -48,25 +47,5 @@
             </form>
         </div>
     </div>
-
-
-
-    <!-- Remove below if top is functioning
-    <div class="row justify-content-around">
-        <div class="col-10 col-lg-7">
-            <form action="{{ url_for('update_category', category_id=category._id) }}" method="POST">
-                <legend>Edit a category</legend>
-                <div class="form-group">
-                    <label class="col-form-label" for="category_name">Category Name:</label>
-                    <input type="text" class="form-control" placeholder="Enter the category name..." name="category_name" id="category_name" value="{{ category.category_name }}">
-                    <label class="col-form-label" for="cover_url">Category Image Link:</label>
-                    <input type="text" class="form-control" placeholder="Add a link to the category cover image..." name="cover_url" id="cover_url" value="{{ category.cover_url }}">
-                </div>
-                
-                <button type="submit" class="btn btn-primary">Submit Change</button>
-            </form>
-        </div>
-    </div>
-    -->
 </section>
 {% endblock %}

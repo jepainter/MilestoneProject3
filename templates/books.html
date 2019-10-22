@@ -2,7 +2,24 @@
 <section class="container-fluid"> 
     <div class="row justify-content-around bottom-margin">
         <div class="col-10">
-            <h1 class="fnt-clr-red">Books</h1>
+            <h1 class="section-headings fnt-clr-red">Books</h1>
+        </div>
+    </div>
+    
+    <div class="row justify-content-around">
+        <div class="col-10 bottom-margin">
+            <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                <button type="button" class="btn btn-primary">Choose a Category...</button>
+                <div class="btn-group" role="group">
+                    <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                    <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                        <a class="dropdown-item" href="{{ url_for('get_books', category_id='') }}">All Books</a> 
+                        {% for category in categories %}
+                            <a class="dropdown-item" href="{{ url_for('get_books', category_id=category._id) }}">{{ category.category_name.title() }}</a> 
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -10,22 +27,26 @@
         <div class="col-10">
             <div class="row align-items-top justify-content-around">
                 {% for book_id, book_detail in books.items() %}
-                <div class="col-12 col-md-6 col-lg-4 bottom-margin">
-                    <a class="no-text-decor" href="{{ url_for('get_book', book_id=books[book_id]['_id']) }}">
-                        <div class="card bg-clr-transparent no-border">
-                            <img src="{{ books[book_id]['cover_url'] }}" class="crd-img" alt="Image for {{ books[book_id]['title'].title() }}"/>
-                            <div class="card-body bg-clr-white">
-                            <ul class="list-group list-group-flush bg-clr-transparent">
-                                <li class="list-group-item bg-clr-transparent"><h2>{{ books[book_id]["title"] }}</h2>
-                                <li class="list-group-item bg-clr-transparent"><h6>Author:</h6><h4> {{ books[book_id]["author_fname"].title() }} {{ books[book_id]["author_lname"].title() }}</h4></li>
-                                <li class="list-group-item bg-clr-transparent"><h6>Category:</h6><h4> {{ books[book_id]["category_name"].title() }}</h4></li>
-                                <li class="list-group-item bg-clr-transparent"><h6>Votes:</h6><h4> <i class="fas fa-arrow-alt-circle-up"></i> {{ books[book_id]["up_votes"] }} | <i class="fas fa-arrow-alt-circle-down"></i> {{ books[book_id]["down_votes"] }} </h4></li>
-                                <li class="list-group-item bg-clr-transparent"><h6>Date Added:</h6> <h4> {{ books[book_id]["date_added"] }}</h4>
-                            </ul>
+                    <div class="col-12 col-md-6 col-xl-4 bottom-margin">
+                        <a class="no-text-decor" href="{{ url_for('get_book', book_id=books[book_id]['_id']) }}">
+                            <div class="card h-100 bg-clr-dark no-border border-box">
+                                <div class="card-img-top bg-clr-transparent text-center">
+                                  <img src="{{ books[book_id]['cover_url'] }}" class="crd-img border-box" alt="Image for {{ books[book_id]['title'].title() }}"/>
+                                </div>
+                                <div class="card-body bg-clr-transparent fnt-clr-black">
+                                    <div class="bg-clr-white border-box">
+                                        <ul class="list-group list-group-flush bg-clr-transparent">
+                                            <li class="list-group-item bg-clr-blue fnt-clr-white"><h4>{{ books[book_id]["title"] }}</h4></li>
+                                            <li class="list-group-item bg-clr-transparent"><h6>Author:</h6><h5> {{ books[book_id]["author_fname"].title() }} {{ books[book_id]["author_lname"].title() }}</h5></li>
+                                            <li class="list-group-item bg-clr-transparent"><h6>Category:</h6><h5> {{ books[book_id]["category_name"].title() }}</h5></li>
+                                            <li class="list-group-item bg-clr-transparent"><h6>Votes:</h6><h5> <i class="fas fa-arrow-alt-circle-up"></i> {{ books[book_id]["up_votes"] }} | <i class="fas fa-arrow-alt-circle-down"></i> {{ books[book_id]["down_votes"] }} </h5></li>
+                                            <li class="list-group-item bg-clr-transparent"><h6>Date Added:</h6> <h5> {{ books[book_id]["date_added"] }}</h5></li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </a>
-                </div>
+                        </a>
+                    </div>
                 {% endfor %}
             </div>
         </div>

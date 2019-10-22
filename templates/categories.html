@@ -1,35 +1,40 @@
 {% extends "base.html" %} {% block content %}
 <section class="container-fluid"> 
-<div class="row justify-content-around">
-    <div class="col-10">
-        <h1 class="fnt-clr-red">Categories</h1>
-        <p>This is the categories page</p>
-    </div>
-</div>
-
-<div class="row justify-content-around">
-    <div class="col-10">
-        <div class="row align-items-top justify-content-around">
-            {% for category in categories %}
-            <div class="col-12 col-md-6 col-lg-4 bottom-margin">
-                <a class="no-text-decor" href="{{ url_for('get_books', category_id=category._id) }}">
-                    <div class="card bg-clr-transparent no-border">
-                        <img class="crd-img" src="{{ category.cover_url }}" alt="Image for {{ category.category_name.title() }}"/>
-                        <div class="card-body bg-clr-white">
-                            <h3 class="card-header">{{ category.category_name.title() }}</h3>
-                            {% if user %}
-                            <ul class="list-group list-group-flush bg-clr-transparent">
-                                <li class="list-group-item bg-clr-transparent"><a href="{{ url_for('edit_category', category_id=category._id) }}">Edit Category</a></li>
-                                <li class="list-group-item bg-clr-transparent"><a href="{{ url_for('delete_category', category_id=category._id) }}">Delete Category</a></li>
-                            </ul>
-                            {% endif %}
-                        </div>
-                    </div>
-                </a>
-            </div>
-            {% endfor %}
+    <div class="row justify-content-around">
+        <div class="col-10">
+            <h1 class="section-headings fnt-clr-red">Categories</h1>
         </div>
     </div>
-</div>
+    
+    <div class="row justify-content-around">
+        <div class="col-10">
+            <div class="row align-items-top justify-content-around">
+                {% for category in categories %}
+                <div class="col-12 col-md-6 col-xl-4 bottom-margin">
+                    <a class="no-text-decor" href="{{ url_for('get_books', category_id=category._id) }}">
+                        <div class="card h-100 bg-clr-dark no-border border-box">
+                            <div class="card-img-top bg-clr-transparent text-center">
+                                <img class="crd-img border-box" src="{{ category.cover_url }}" alt="Image for {{ category.category_name.title() }}"/>
+                            </div>
+                            <div class="card-body bg-clr-transparent fnt-clr-black">
+                                <div class="bg-clr-white border-box"> 
+                                    <ul class="list-group list-group-flush bg-clr-transparent text-center">
+                                        <li class="list-group-item bg-clr-blue fnt-clr-white"><h3 class="category-headings">{{ category.category_name.title() }}</h3></li>
+                                        {% if super_user %}
+                                            <li class="list-group-item bg-clr-transparent text-center">
+                                            <a class="btn btn-warning" href="{{ url_for('edit_category', category_id=category._id) }}">Edit</a>
+                                            <a class="btn btn-danger" href="{{ url_for('delete_category', category_id=category._id) }}">Delete</a>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 </section>
 {% endblock %}

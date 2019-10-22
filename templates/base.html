@@ -7,11 +7,12 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
     <!-- Stylesheets for basic (Bootstrap and Bootswwatch Lux), Font Awesome, Favicon and detailed styling  -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.3.1/lux/bootstrap.min.css" integrity="sha384-hVpXlpdRmJ+uXGwD5W6HZMnR9ENcKVRn855pPbuI/mwPIEKAuKgTKgGksVGmlAvt" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" integrity="sha256-/sdxenK1NDowSNuphgwjv8wSosSNZB0t5koXqd7XqOI=" crossorigin="anonymous" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" type="text/css" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"/>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.3.1/lux/bootstrap.min.css" integrity="sha384-hVpXlpdRmJ+uXGwD5W6HZMnR9ENcKVRn855pPbuI/mwPIEKAuKgTKgGksVGmlAvt" crossorigin="anonymous"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css" integrity="sha256-46qynGAkLSFpVbEBog43gvNhfrOj+BmwXdxFgVK/Kvc=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" type="text/css"/>
 
+    
     <!-- Favicon for site -->
     <link rel="shortcut icon" href="{{ url_for('static', filename='icon/ubrfavicon.ico') }}" type="image/x-icon" />
 
@@ -19,58 +20,42 @@
 </head>
 
 <body>
-
+   
     <!-- Navbar for navigation of site -->
-    <header>
+   <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
             <a class="navbar-brand" href="{{ url_for('home_screen') }}">
-        <img src="{{ url_for('static', filename='images/ubrlogoonly.png') }}" alt="Ultimate Book Review Logo">
-            <span class="navbar-brand-text">Ultimate Book Review</span>
-        </a>
+                <img src="{{ url_for('static', filename='images/ubrlogoonly.png') }}" alt="Ultimate Book Review Logo">
+                <span class="navbar-brand-text">Ultimate Book Review</span>
+            </a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-         </button>
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
             <div class="collapse navbar-collapse" id="navbarColor02">
                 <ul class="navbar-nav mr-auto">
-                    <a class="nav-item nav-link" href="{{ url_for('home_screen') }}">Home <span class="sr-only">(current)</span></a>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" id="booksDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                          Books
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="booksDropdown">
-                          <a class="dropdown-item" href="{{ url_for('get_books') }}">View Books</a>
-                          <div class="dropdown-divider"></div>
-                          <a class="dropdown-item" href="{{ url_for('add_book') }}">Add Book</a>
-                        </div>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" id="categoriesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                          Categories
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="categoriesDropdown">
-                          <a class="dropdown-item" href="{{ url_for('get_categories') }}">View Categories</a>
-                          <div class="dropdown-divider"></div>
-                          <a class="dropdown-item" href="{{ url_for('add_category') }}">Add Category</a>
-                        </div>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" id="usersDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                          Users
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="usersDropdown">
-                          <a class="dropdown-item" href="{{ url_for('get_users') }}">View Users</a>
-                          <div class="dropdown-divider"></div>
-                          <a class="dropdown-item" href="{{ url_for('add_user') }}">Add User</a>
-                        </div>
-                    </li>
+                    <a class="navbar-item nav-link" href="{{ url_for('home_screen') }}">Home <span class="sr-only">(current)</span></a>
+                    <a class="navbar-item nav-link" href="{{ url_for('get_categories') }}">Categories</a>
+                    {% if super_user %}
+                        <a class="navbar-item nav-link" href="{{ url_for('add_category') }}">Add Category</a>
+                    {% endif %}
+                    <a class="navbar-item nav-link" href="{{ url_for('get_books') }}">Books</a>
+                    <a class="navbar-item nav-link" href="{{ url_for('add_book') }}">Add Book</a>
+                    {% if super_user %}
+                        <a class="navbar-item nav-link" href="{{ url_for('get_users') }}">User Management</a>
+                    {% endif %}
                 </ul>
                 <!-- adapted from https://www.youtube.com/watch?v=QnDWIZuWYW0&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=2 -->
                 <div class="navbar-nav">
-                    <a class="navbar-item nav-link" href="{{ url_for('get_session') }}">Get Session</a>
-                    <a class="navbar-item nav-link" href="{{ url_for('close_session') }}">Close Session</a>
-                    <a class="navbar-item nav-link" href="{{ url_for('log_user_in') }}">Login</a>
-                    <a class="navbar-item nav-link" href="{{ url_for('add_user') }}">Register</a>
+                    {% if super_user or regular_user %}
+                        {% if regular_user %}
+                            <a class="navbar-item nav-link" href="{{ url_for('get_users') }}">Your Profile</a>
+                        {% endif %}
+                    <a class="navbar-item nav-link" href="{{ url_for('close_session') }}">Log Out</a>
+                    {% else %}
+                        <a class="navbar-item nav-link" href="{{ url_for('log_user_in') }}">Login</a>
+                        <a class="navbar-item nav-link" href="{{ url_for('add_user') }}">Register</a>
+                    {% endif %}
                 </div>
             </div>
         </nav>
@@ -82,11 +67,11 @@
     </section>
 
     <!-- Section for inserting block content from pages using Flask -->
-    <!-- Code adapted from Corey Shafer's tutorial found at
+    <!-- Code for flash messages adapted from Corey Shafer's tutorial found at
     https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3-->
-    <section class="container-fluid top-pad">
-        <div class="row justify-content-around">
-            <div class="col-10 text-center">
+    <section class="container-fluid">
+        <div class="row justify-content-around no-margin">
+            <div class="col-8 text-center">
                 {% with messages = get_flashed_messages(with_categories=true) %} 
                     {% if messages %} 
                         {% for category, message in messages %}
@@ -105,22 +90,22 @@
 
     <!-- Footer for website -->
     <footer class="container-fluid footer-position bg-dark">
-        <div class="row  top-margin">
+        <div class="row top-margin">
             <div class="col-sm-4">
-                <h5>Developer</h5>
+                <h5 class="fnt-clr-white">Developer</h5>
                 <p>This site has been created by Jonathan Painter. View the README here:
-                    <a href="#" target="_blank" aria-label="Link to readme" rel="noopener" class="footer-links">
+                    <a href="#" target="_blank" aria-label="Link to readme" rel="noopener">
                         <i class="fas fa-download readme-link" aria-hidden="true"></i>
                         <span class="sr-only">Readme Link.</span>
                     </a>
                 </p>
             </div>
             <div class="col-sm-4">
-                <h5>Disclaimer</h5>
+                <h5 class="fnt-clr-white">Disclaimer</h5>
                 <p>This site is created for education purposes only.</p>
             </div>
             <div class="col-sm-4">
-                <h5>Social Media</h5>
+                <h5 class="fnt-clr-white">Social Media</h5>
                 <p>Folow us on social media:</p>
                 <ul class="list-inline footer-links">
                     <li class="list-inline-item">

@@ -2,32 +2,31 @@
 <section class="container-fluid"> 
     <div class="row justify-content-around">
         <div class="col-10">
-            <h1 class="fnt-clr-red">Edit Comment</h1>
-            <p>Edit comment page</p>
+            <h1 class="section-headings fnt-clr-red">Edit Comment</h1>
         </div>
     </div>
     
     <!-- Code adapted from Corey Shafer's tutorial found at
         https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3-->
     <div class="row justify-content-around">
-        <div class="col-10">
+        <div class="col-10 bottom-margin bg-clr-darkest border-box">
             <form action="{{ url_for('edit_comment', comment_id=comment._id) }}" method="POST"> 
                 {{ form.hidden_tag() }}
                 <fieldset class="form-group">
-                <legend>Edit a comment for the book</legend>
-                <div class="form-group">
-                    {{ form.comment.label(class="col-form-label") }}
-                    {% if form.comment.errors %}
-                        {{ form.comment(class="form-control is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.comment.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.comment(class="form-control", placeholder="Enter your comment for the book...", value=comment.comment) }}
-                    {% endif %}
-                </div>
+                    <legend>Edit a comment for the book</legend>
+                    <div class="form-group">
+                        {{ form.comment.label(class="col-form-label") }}
+                        {% if form.comment.errors %}
+                            {{ form.comment(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.comment.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.comment(class="form-control", placeholder="Enter your comment for the book...", value=comment.comment) }}
+                        {% endif %}
+                    </div>
                 </fieldset>
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary">Update Comment</button>

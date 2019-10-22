@@ -2,93 +2,92 @@
 <section class="container-fluid"> 
     <div class="row justify-content-around">
         <div class="col-10">
-            <h1 class="fnt-clr-red">Edit Book Review</h1>
-            <p>This is the edit book review page</p>
+            <h1 class="section-headings fnt-clr-red">Edit Book Review</h1>
         </div>
     </div>
 
     <!-- Code adapted from Corey Shafer's tutorial found at
     https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3-->
     <div class="row justify-content-around">
-        <div class="col-10 bottom-margin">
+        <div class="col-10 bottom-margin bg-clr-darkest border-box">
             <form action="{{ url_for('edit_book', book_id=book._id) }}" method="POST">
                 {{ form.hidden_tag() }}
                 <fieldset class="form-group">
-                <legend>Edit book details</legend>
-                <div class="form-group">
-                    {{ form.title.label(class="col-form-label") }}
-                    {% if form.title.errors %}
-                        {{ form.title(class="form-control is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.title.errors %}
-                                <span>{{ error }}</span>
+                    <legend>Edit book details</legend>
+                    <div class="form-group">
+                        {{ form.title.label(class="col-form-label") }}
+                        {% if form.title.errors %}
+                            {{ form.title(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.title.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.title(class="form-control", placeholder="Enter the title of the book...", value=book.title.title()) }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.author_fname.label(class="col-form-label") }}
+                        {% if form.author_fname.errors %}
+                            {{ form.author_fname(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.author_fname.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.author_fname(class="form-control", placeholder="Enter the author's first name...", value=book.author_fname.title()) }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.author_lname.label(class="col-form-label") }}
+                        {% if form.author_lname.errors %}
+                            {{ form.author_lname(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.author_lname.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.author_lname(class="form-control", placeholder="Enter the author's surname...", value=book.author_lname.title()) }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.category_id.label(class="col-form-label") }}
+                        <select class="form-control" name="category_id" id="category">
+                            <option value="" disabled>Choose a category...</option>
+                        {% if form.category_id.errors %}
+                            {{ form.category_id(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.category_id.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {% for category in categories %}
+                                {% if category._id|string() == book.category_id|string() %}
+                                    <option value="{{ category._id }}" selected>{{ category.category_name.title() }}</option>
+                                {% else %}
+                                    <option value="{{ category._id }}">{{ category.category_name.title() }}</option>
+                                {% endif %}
                             {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.title(class="form-control", placeholder="Enter the title of the book...", value=book.title.title()) }}
-                    {% endif %}
-                </div>
-                <div class="form-group">
-                    {{ form.author_fname.label(class="col-form-label") }}
-                    {% if form.author_fname.errors %}
-                        {{ form.author_fname(class="form-control is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.author_fname.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.author_fname(class="form-control", placeholder="Enter the author's first name...", value=book.author_fname.title()) }}
-                    {% endif %}
-                </div>
-                <div class="form-group">
-                    {{ form.author_lname.label(class="col-form-label") }}
-                    {% if form.author_lname.errors %}
-                        {{ form.author_lname(class="form-control is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.author_lname.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.author_lname(class="form-control", placeholder="Enter the author's surname...", value=book.author_lname.title()) }}
-                    {% endif %}
-                </div>
-                <div class="form-group">
-                    {{ form.category_id.label(class="col-form-label") }}
-                    <select class="form-control" name="category_id" id="category">
-                        <option value="" disabled>Choose a category...</option>
-                    {% if form.category_id.errors %}
-                        {{ form.category_id(class="form-control is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.category_id.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {% for category in categories %}
-                            {% if category._id|string() == book.category_id|string() %}
-                                <option value="{{ category._id }}" selected>{{ category.category_name.title() }}</option>
-                            {% else %}
-                                <option value="{{ category._id }}">{{ category.category_name.title() }}</option>
-                            {% endif %}
-                        {% endfor %}
-                    {% endif %}
-                    </select>
-                </div>
-                <div class="form-group">
-                    {{ form.cover_url.label(class="col-form-label") }}
-                    {% if form.cover_url.errors %}
-                        {{ form.cover_url(class="form-control is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.cover_url.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.cover_url(class="form-control", placeholder="Enter the cover link...", value=book.cover_url) }}
-                    {% endif %}
-                </div>
+                        {% endif %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        {{ form.cover_url.label(class="col-form-label") }}
+                        {% if form.cover_url.errors %}
+                            {{ form.cover_url(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.cover_url.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.cover_url(class="form-control", placeholder="Enter the cover link...", value=book.cover_url) }}
+                        {% endif %}
+                    </div>
                 </fieldset>
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary">Update Book</button>

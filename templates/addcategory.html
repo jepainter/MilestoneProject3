@@ -2,15 +2,14 @@
 <section class="container-fluid"> 
     <div class="row justify-content-around">
         <div class="col-10">
-            <h1 class="fnt-clr-red">Add Category</h1>
-            <p>This is the add category page</p>
+            <h1 class="section-headings fnt-clr-red">Add Category</h1>
         </div>
     </div>
     
     <!-- Code adapted from Corey Shafer's tutorial found at
-        https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3-->
+    https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3-->
     <div class="row justify-content-around">
-        <div class="col-10 bottom-margin">
+        <div class="col-10 bottom-margin bg-clr-darkest border-box">
             <form action="{{ url_for('add_category') }}" method="POST">
                 {{ form.hidden_tag() }}
                 <fieldset class="form-group">
