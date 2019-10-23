@@ -9,7 +9,7 @@
     <!-- Code adapted from Corey Shafer's tutorial found at
         https://www.youtube.com/watch?v=UIJKdCIEXUQ&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH&index=3-->
     <div class="row justify-content-around">
-        <div class="col-10 bottom-margin">
+        <div class="col-10 bottom-margin bg-clr-darkest border-box">
             <form action="{{ url_for('add_book') }}" method="POST">
                 {{ form.hidden_tag() }}
                 <fieldset class="form-group">
@@ -87,7 +87,7 @@
                 </div>
                 </fieldset>
                 <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Add Book</button>
+                    <button type="submit" class="btn btn-info btn-action">Add Book</button>
                 </div>
             </form>
         </div>

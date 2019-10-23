@@ -120,6 +120,10 @@ body:after {
 
 .bg-clr-white {
     background-color: #ffffffc4;
+    transition: all 0.35s ease-in-out;
+    -o-transition: all 0.35s ease-in-out;
+    -moz-transition: all 0.35s ease-in-out;
+    -webkit-transition: all 0.35s ease-in-out;
 }
 
 .bg-clr-white:hover {
@@ -129,6 +133,10 @@ body:after {
 
 .bg-clr-dark {
     background-color: #00000036;
+    transition: all 0.35s ease-in-out;
+    -o-transition: all 0.35s ease-in-out;
+    -moz-transition: all 0.35s ease-in-out;
+    -webkit-transition: all 0.35s ease-in-out;
 }
 
 .bg-clr-dark:hover {
@@ -151,6 +159,18 @@ body:after {
     font-size: 20px;
 }
 
+
+/* Form styling */
+
+.form-control{
+    height: 45px;
+}
+
+.btn-action {
+    width: 168px;
+    padding: 12px 20px;
+    margin: 3px;
+}
 
 /* Image styling */
 .crd-img {
