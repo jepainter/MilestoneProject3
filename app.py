@@ -25,7 +25,6 @@ bcrypt = Bcrypt(app)
 Landing page
 """
 @app.route("/", methods=["GET"])
-#@app.route("/home_screen", methods=["GET"]) #remove this if not necessary, test first
 def home_screen():
     """
     Function for rendering landing page
@@ -191,7 +190,7 @@ def add_book():
                 return render_template("addbook.html", form=form, categories=mongo.db.categories.find().sort("category_name"), regular_user=g.user)
     
     else:
-        flash("You need to log in first...", "warning")
+        flash(f"You need to log in first...", "warning")
         return redirect(url_for("log_user_in"))
     
 @app.route("/edit_book/<book_id>", methods=["GET", "POST"])
@@ -236,11 +235,11 @@ def edit_book(book_id):
                     return render_template("editbook.html", book=the_book, categories=all_categories, form=form, regular_user=g.user)
                 
         else:
-            flash("You cannot edit this book's details, as it was uploaded by someone else...", "danger")
+            flash(f"You cannot edit this book's details, as it was uploaded by someone else...", "danger")
             return redirect(url_for("get_book", book_id=book_id))
         
     else:
-        flash("You need to log in first...", "warning")
+        flash(f"You need to log in first...", "warning")
         return redirect(url_for("log_user_in"))
     
 @app.route("/delete_book/<book_id>")
@@ -255,24 +254,24 @@ def delete_book(book_id):
         the_book = mongo.db.books.find_one({"_id" : ObjectId(book_id)})
         super_user = mongo.db.users.find_one({"username": "ubradmin" })
         if g.user == str(super_user["_id"]):
-            flash("Book and associated info deleted by ADMIN!", "success")
+            flash(f"Book and associated info deleted by ADMIN!", "success")
             mongo.db.books.remove({"_id" : ObjectId(book_id)})
             mongo.db.reviews.remove({"book_id" : book_id})
             mongo.db.comments.remove({"book_id" : book_id})
             return redirect(url_for('get_books'))
         elif g.user == the_book["user_id"]:
-            flash("Book and associated info deleted from site.", "success")
+            flash(f"Book and associated info deleted from site.", "success")
             mongo.db.books.remove({"_id" : ObjectId(book_id)})
             mongo.db.reviews.remove({"book_id" : book_id})
             mongo.db.comments.remove({"book_id" : book_id})
             return redirect(url_for('get_books'))
             
         else:
-            flash("You cannot delete that book, as it was uploaded by someone else...", "danger")
+            flash(f"You cannot delete that book, as it was uploaded by someone else...", "danger")
             return redirect(url_for("get_books"))
     
     else:
-        flash("You need to log in first...", "warning")
+        flash(f"You need to log in first...", "warning")
         return redirect(url_for("log_user_in"))
 
 
@@ -326,7 +325,7 @@ def add_category():
             return render_template("addcategory.html", form=form, super_user=g.user)
     
     else:
-        flash("You cannot add categories, you do not have the correct privileges...", "danger")
+        flash(f"You cannot add categories, you do not have the correct privileges...", "danger")
         return redirect(url_for("get_categories"))
    
 @app.route("/edit_category/<category_id>", methods=["GET", "POST"])
@@ -358,7 +357,7 @@ def edit_category(category_id):
             return render_template("editcategory.html", category=the_category, form=form, super_user=g.user)
         
     else:
-        flash("You cannot edit categories, you do not have the correct privileges...", "danger")
+        flash(f"You cannot edit categories, you do not have the correct privileges...", "danger")
         return redirect(url_for("log_user_in"))
 
 @app.route("/delete_category/<category_id>")
@@ -368,11 +367,11 @@ def delete_category(category_id):
     """
     super_user = mongo.db.users.find_one({"username": "ubradmin" })
     if g.user == str(super_user["_id"]):
-        flash("Category successfully deleted!", "success")
+        flash(f"Category successfully deleted!", "success")
         mongo.db.categories.remove({"_id" : ObjectId(category_id)})
         return redirect(url_for("get_categories"))
     else:
-        flash("You cannot delete categories, you do not have the correct privileges...", "danger")
+        flash(f"You cannot delete categories, you do not have the correct privileges...", "danger")
         return redirect(url_for("get_categories"))
 
 
@@ -388,11 +387,7 @@ def up_vote(book_id):
     books = mongo.db.books
     the_book = mongo.db.books.find_one({"_id" : ObjectId(book_id)})
     new_up_vote = the_book["up_votes"] + 1
-    print(the_book["up_votes"])
-    print(new_up_vote)
-    print(the_book)
     books.update_one({"_id" : ObjectId(book_id)}, { "$set" : {"up_votes" : new_up_vote}})
-    print(the_book)
     return redirect(url_for("get_book", book_id=book_id))
 
 @app.route("/down_vote/<book_id>", methods=["GET","POST"])
@@ -403,11 +398,7 @@ def down_vote(book_id):
     books = mongo.db.books
     the_book = mongo.db.books.find_one({"_id" : ObjectId(book_id)})
     new_down_vote = the_book["down_votes"] + 1
-    print(the_book["down_votes"])
-    print(new_down_vote)
-    print(the_book)
     books.update_one({"_id" : ObjectId(book_id)}, { "$set" : {"down_votes" : new_down_vote}})
-    print(the_book)
     return redirect(url_for("get_book", book_id=book_id))
 
 
@@ -430,7 +421,7 @@ def check_review_exists(book_id):
         if g.user:
             return redirect(url_for("add_review", book_id=book_id))
         else:
-            flash("You need to log in first...", "warning")
+            flash(f"You need to log in first...", "warning")
             return redirect(url_for("log_user_in"))
     
 @app.route("/add_review/<book_id>", methods=["GET", "POST"])
@@ -469,7 +460,7 @@ def add_review(book_id):
                 return render_template("addreview.html", form=form, book_id=book_id, regular_user=g.user)
         
     else:
-        flash("You need to log in first...", "warning")
+        flash(f"You need to log in first...", "warning")
         return redirect(url_for("log_user_in"))
 
 @app.route("/edit_review/<book_id>", methods=["GET", "POST"])
@@ -509,11 +500,11 @@ def edit_review(book_id):
                     return render_template("editreview.html", book_id=book_id, review=the_review, form=form, regular_user=g.user)
                 
         else:
-            flash("You cannot edit this review, as it was uploaded by someone else...", "danger")
+            flash(f"You cannot edit this review, as it was uploaded by someone else...", "danger")
             return redirect(url_for("get_book", book_id=book_id))
     
     else:
-        flash("You need to log in first...", "warning")
+        flash(f"You need to log in first...", "warning")
         return redirect(url_for("log_user_in"))
 
 @app.route("/delete_review/<book_id>")
@@ -527,20 +518,20 @@ def delete_review(book_id):
         the_review = mongo.db.reviews.find_one({"book_id" : book_id})
         super_user = mongo.db.users.find_one({"username": "ubradmin" })
         if g.user == str(super_user["_id"]):
-            flash("User review deleted by ADMIN!", "success")
+            flash(f"User review deleted by ADMIN!", "success")
             mongo.db.reviews.remove({"_id" : the_review["_id"]})
             return redirect(url_for('get_book', book_id=book_id))
         elif g.user == the_review["user_id"]:
-            flash("Review deleted from site.", "success")
+            flash(f"Review deleted from site.", "success")
             mongo.db.reviews.remove({"_id" : the_review["_id"]})
             return redirect(url_for('get_book', book_id=book_id))
             
         else:
-            flash("You cannot delete the review, as it was uploaded by someone else...", "danger")
+            flash(f"You cannot delete the review, as it was uploaded by someone else...", "danger")
             return redirect(url_for('get_book', book_id=book_id))
     
     else:
-        flash("You need to log in first...", "warning")
+        flash(f"You need to log in first...", "warning")
         return redirect(url_for("log_user_in"))
 
 
@@ -583,7 +574,7 @@ def add_comment(book_id):
                 return render_template("addcomment.html", form=form, book_id=book_id, regular_user=g.user)
             
     else:
-        flash("You need to log in first...", "warning")
+        flash(f"You need to log in first...", "warning")
         return redirect(url_for("log_user_in"))
 
 @app.route("/edit_comment/<comment_id>", methods=["GET", "POST"])
@@ -620,10 +611,10 @@ def edit_comment(comment_id):
                 else:
                     return render_template("editcomment.html", form=form, comment=the_comment, regular_user=g.user)
         else:
-            flash("You cannot edit this comment, as it was made by someone else...", "danger")
+            flash(f"You cannot edit this comment, as it was made by someone else...", "danger")
             return redirect(url_for('get_book', book_id=the_comment["book_id"]))
     else:
-        flash("You need to log in first...", "warning")
+        flash(f"You need to log in first...", "warning")
         return redirect(url_for("log_user_in"))
 
 @app.route("/delete_comment/<comment_id>")
@@ -637,20 +628,20 @@ def delete_comment(comment_id):
         the_comment = mongo.db.comments.find_one({"_id" : ObjectId(comment_id)})
         super_user = mongo.db.users.find_one({"username": "ubradmin" })
         if g.user == str(super_user["_id"]):
-            flash("User comment deleted by ADMIN!", "success")
+            flash(f"User comment deleted by ADMIN!", "success")
             mongo.db.comments.remove({"_id" : the_comment["_id"]})
             return redirect(url_for('get_book', book_id=the_comment["book_id"]))
         elif g.user == the_comment["user_id"]:
-            flash("Comment deleted from for book.", "success")
+            flash(f"Comment deleted from for book.", "success")
             mongo.db.comments.remove({"_id" : the_comment["_id"]})
             return redirect(url_for('get_book', book_id=the_comment["book_id"]))
             
         else:
-            flash("You cannot delete the comment, as it was made by someone else...", "danger")
+            flash(f"You cannot delete the comment, as it was made by someone else...", "danger")
             return redirect(url_for('get_book', book_id=the_comment["book_id"]))
     
     else:
-        flash("You need to log in first...", "warning")
+        flash(f"You need to log in first...", "warning")
         return redirect(url_for("log_user_in"))
 
 
@@ -673,7 +664,7 @@ def get_users():
             user = mongo.db.users.find_one({"_id": ObjectId(g.user)})
             return render_template("users.html", user=user, regular_user=g.user)
     else:
-        flash("You need to login first...", "warning")
+        flash(f"You need to login first...", "warning")
         return redirect(url_for('log_user_in'))
 
 def user_exists(search_type, user_detail):
@@ -704,9 +695,6 @@ def add_user():
         form = RegistrationForm()
         
         if form.validate_on_submit():
-            
-            print("Username: " + str(form.username.data.lower()))
-            
             username_exist = user_exists("username", form.username.data.lower())
             email_exist = user_exists("email", form.email.data.lower())
             if username_exist == True and email_exist == True:
@@ -743,7 +731,7 @@ def add_user():
             return render_template("adduser.html", form=form)
     
     else:
-        flash("You are already logged on!", "warning")
+        flash(f"You are already logged on!", "warning")
         return redirect(url_for('home_screen'))
 
 @app.route("/log_user_in", methods=["GET","POST"])
@@ -829,10 +817,10 @@ def edit_user(user_id):
                 return render_template("edituser.html", form=form, user=the_user, regular_user=g.user)
         
         else:
-            flash("You cannot edit this user profile, as it belongs to someone else...", "danger")
+            flash(f"You cannot edit this user profile, as it belongs to someone else...", "danger")
             return redirect(url_for('get_users'))
     else:
-        flash("You need to log in first...", "warning")
+        flash(f"You need to log in first...", "warning")
         return redirect(url_for("log_user_in"))
 
 @app.route("/delete_user/<user_id>")
@@ -846,21 +834,21 @@ def delete_user(user_id):
     if g.user:
         super_user = mongo.db.users.find_one({"username": "ubradmin" })
         if g.user == str(super_user["_id"]):
-            flash("User profile and associated comments deleted by ADMIN!", "success")
+            flash(f"User profile and associated comments deleted by ADMIN!", "success")
             mongo.db.users.remove({"_id" : ObjectId(user_id)})
             mongo.db.comments.remove({"user_id" : user_id})
             return redirect(url_for("get_users"))
         elif g.user == user_id:
-            flash("User profile and associated comments deleted", "success")
+            flash(f"User profile and associated comments deleted", "success")
             mongo.db.users.remove({"_id" : ObjectId(user_id)})
             mongo.db.comments.remove({"user_id" : user_id})
             return close_session()
         else:
-            flash("You cannot remove this user, you do not have the relevant privileges...", "danger")
+            flash(f"You cannot remove this user, you do not have the relevant privileges...", "danger")
             return redirect(url_for("get_users"))
     
     else:
-        flash("You need to log in first...", "warning")
+        flash(f"You need to log in first...", "warning")
         return redirect(url_for("log_user_in"))
    
 
