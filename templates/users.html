@@ -18,8 +18,8 @@
                                     <ul class="list-group list-group-flush bg-clr-transparent">
                                         <li class="list-group-item bg-clr-blue fnt-clr-white"><h3>{{ user.username }}</h3></li>
                                         <li class="list-group-item bg-clr-transparen text-center">
-                                            <a class="btn btn-warning" href="{{ url_for('edit_user', user_id=user._id) }}">Edit User</a>
-                                            <a class="btn btn-danger" href="{{ url_for('delete_user', user_id=user._id) }}">Delete User</a>
+                                            <a class="btn btn-warning btn-action" href="{{ url_for('edit_user', user_id=user._id) }}">Edit User</a>
+                                            <a class="btn btn-danger btn-action" href="{{ url_for('delete_user', user_id=user._id) }}">Delete User</a>
                                         </li>
                                     </ul>
                                 </div>
@@ -37,10 +37,12 @@
                                         <ul class="list-group list-group-flush bg-clr-transparent">
                                             <li class="list-group-item bg-clr-blue fnt-clr-white"><h3>{{ user.username }}</h3></li>
                                             <li class="list-group-item bg-clr-transparent text-center">
-                                                {% if not super_user %}
-                                                <a class="btn btn-warning" href="{{ url_for('edit_user', user_id=user._id) }}">Edit User</a>
+                                                {% if super_user == user._id|string() %}
+                                                <a class="btn btn-warning btn-action" href="{{ url_for('edit_user', user_id=user._id) }}">Edit User</a>
                                                 {% endif %}
-                                                <a class="btn btn-danger" href="{{ url_for('delete_user', user_id=user._id) }}">Delete User</a>
+                                                {% if super_user != user._id|string() %}
+                                                <a class="btn btn-danger btn-action" href="{{ url_for('delete_user', user_id=user._id) }}">Delete User</a>
+                                                {% endif %}
                                             </li>
                                         </ul>
                                     </div>

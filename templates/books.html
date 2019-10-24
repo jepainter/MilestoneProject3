@@ -9,7 +9,6 @@
     <div class="row justify-content-around">
         <div class="col-10 bottom-margin">
             <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
-                <button type="button" class="btn btn-primary">Choose a Category...</button>
                 <div class="btn-group" role="group">
                     <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
                     <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
@@ -19,19 +18,21 @@
                         {% endfor %}
                     </div>
                 </div>
+                <button type="button" class="btn btn-primary">Category...</button>
             </div>
         </div>
     </div>
     
     <div class="row justify-content-around">
-        <div class="col-10">
+        <div class="col-12 col-md-10">
             <div class="row align-items-top justify-content-around">
                 {% for book_id, book_detail in books.items() %}
                     <div class="col-12 col-md-6 col-xl-4 bottom-margin">
                         <a class="no-text-decor" href="{{ url_for('get_book', book_id=books[book_id]['_id']) }}">
                             <div class="card h-100 bg-clr-dark no-border border-box">
                                 <div class="card-img-top bg-clr-transparent text-center">
-                                  <img src="{{ books[book_id]['cover_url'] }}" class="crd-img border-box" alt="Image for {{ books[book_id]['title'].title() }}"/>
+                                    <!-- Error handling on unavailable url for image src adapted from https://blog.imagekit.io/how-to-handle-loading-images-that-may-not-exist-on-your-website-92e6c3c6ea63 -->
+                                    <img src="{{ books[book_id]['cover_url'] }}" onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/ubr404.png') }}';" class="crd-img border-box" alt="Image for {{ books[book_id]['title'].title() }}"/>
                                 </div>
                                 <div class="card-body bg-clr-transparent fnt-clr-black">
                                     <div class="bg-clr-white border-box">
