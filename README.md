@@ -93,6 +93,7 @@ This site is limited to the use of HMTL, CSS, JavaScript, Flask, Python and Mong
 - Feature B - Newsletter sign up to stay informed of new additions, improved functionality.
 - Feature C - Pagination for greater result numbers to be implemented.
 - Feature D - Forget password / log on details functionality.
+- Feature E - Possibility to upload images and store in repository, rather than hotlinking to images.
 
 ## Technologies Used
 
@@ -154,7 +155,7 @@ The style.css file was run through the Autoprefixer CSS Online tool.
 
 The site was tested on Google Chrome (desktop and mobile through dev tools), Opera (desktop only), Edge (desktop only) and Safari (mobile only iPhone6) for functionality.  Verified working well.
 
-This site was also tested manually in line with the user stories and general functionality.  Testing is detailed in the testing matrix - [Testing Matrix]().
+This site was also tested manually in line with the user stories and general functionality.  Testing is detailed in the testing matrix - [Testing Matrix](https://github.com/jepainter/MilestoneProject3/blob/master/testing/Milestone%20Project%203%20-%20Testing%20Matrix.pdf).
 
 ## Deployment
 
@@ -190,7 +191,7 @@ The deployed version on **Heroku** is the same as the development version.
 - Book details have been obtained from Amazon's website and used purely for educational purposes.
 - Images links for categories have been sources from Google searches.
 - Wallpaper background obtained from [Pixabay](https://pixabay.com/) and is used purely for educational purposes.
-- Reviews have been sourced from Amazon's website.
+- Reviews have been sourced from [GoodReads's](https://www.goodreads.com/) website and is used purely for educational purposes.
 
 ### Code
 - All efforts have been made to document code that has been adapted by means of comments in the relevant project files.
