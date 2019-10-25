@@ -111,7 +111,7 @@ class CommentForm(FlaskForm):
     comment = StringField(
         "Comment", validators=[
             DataRequired(), Length(
-                min=2, max=180)])
+                min=2, max=300)])
 
 
 class ReviewForm(FlaskForm):
@@ -123,4 +123,4 @@ class ReviewForm(FlaskForm):
     review = TextAreaField(
         "Review", validators=[
             DataRequired(), Length(
-                min=10, max=1000)])
+                min=10, max=2000)])

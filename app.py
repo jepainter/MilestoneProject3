@@ -298,9 +298,10 @@ def edit_book(book_id):
     # Check to see if user logged in and render html
     if g.user:
         the_book = mongo.db.books.find_one({"_id": ObjectId(book_id)})
+        super_user = mongo.db.users.find_one({"username": "ubradmin"})
         
-        # Check if user same as contributor
-        if g.user == the_book["user_id"]:
+        # Check if user same as contributor or super user
+        if g.user == the_book["user_id"] or g.user == str(super_user["_id"]):
             form = BookForm()
             all_categories = mongo.db.categories.find()
             
@@ -332,7 +333,6 @@ def edit_book(book_id):
             
             # Check to see type of user and return of form for correction
             else:
-                super_user = mongo.db.users.find_one({"username": "ubradmin"})
                 if g.user == str(super_user["_id"]):
                     return render_template(
                         "editbook.html",

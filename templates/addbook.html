@@ -13,78 +13,78 @@
             <form action="{{ url_for('add_book') }}" method="POST">
                 {{ form.hidden_tag() }}
                 <fieldset class="form-group">
-                <legend>Add a book to the site</legend>
-                <div class="form-group">
-                    {{ form.title.label(class="col-form-label") }}
-                    {% if form.title.errors %}
-                        {{ form.title(class="form-control is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.title.errors %}
-                                <span>{{ error }}</span>
+                    <legend>Add a book to the site</legend>
+                    <div class="form-group">
+                        {{ form.title.label(class="col-form-label") }}
+                        {% if form.title.errors %}
+                            {{ form.title(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.title.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.title(class="form-control", placeholder="Enter the title of the book...") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.author_fname.label(class="col-form-label") }}
+                        {% if form.author_fname.errors %}
+                            {{ form.author_fname(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.author_fname.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.author_fname(class="form-control", placeholder="Enter the author's first name...") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.author_lname.label(class="col-form-label") }}
+                        {% if form.author_lname.errors %}
+                            {{ form.author_lname(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.author_lname.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.author_lname(class="form-control", placeholder="Enter the author's surname...") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.category_id.label(class="col-form-label") }}
+                        <select class="form-control" name="category_id" id="category">
+                            <option value="5d9df35b1c9d440000b32348" selected>Choose a category...</option>
+                        {% if form.category_id.errors %}
+                            {{ form.category_id(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.category_id.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {% for category in categories %}
+                                <option value="{{ category._id }}">{{ category.category_name.title() }}</option>
                             {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.title(class="form-control", placeholder="Enter the title of the book...") }}
-                    {% endif %}
-                </div>
-                <div class="form-group">
-                    {{ form.author_fname.label(class="col-form-label") }}
-                    {% if form.author_fname.errors %}
-                        {{ form.author_fname(class="form-control is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.author_fname.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.author_fname(class="form-control", placeholder="Enter the author's first name...") }}
-                    {% endif %}
-                </div>
-                <div class="form-group">
-                    {{ form.author_lname.label(class="col-form-label") }}
-                    {% if form.author_lname.errors %}
-                        {{ form.author_lname(class="form-control is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.author_lname.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.author_lname(class="form-control", placeholder="Enter the author's surname...") }}
-                    {% endif %}
-                </div>
-                <div class="form-group">
-                    {{ form.category_id.label(class="col-form-label") }}
-                    <select class="form-control" name="category_id" id="category">
-                        <option value="5d9df35b1c9d440000b32348" selected>Choose a category...</option>
-                    {% if form.category_id.errors %}
-                        {{ form.category_id(class="form-control is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.category_id.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {% for category in categories %}
-                            <option value="{{ category._id }}">{{ category.category_name.title() }}</option>
-                        {% endfor %}
-                    
-                    {% endif %}
-                    </select>
-                </div>
-                <div class="form-group">
-                    {{ form.cover_url.label(class="col-form-label") }}
-                    {% if form.cover_url.errors %}
-                        {{ form.cover_url(class="form-control is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.cover_url.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.cover_url(class="form-control", placeholder="Enter the cover link...") }}
-                    {% endif %}
-                </div>
+                        
+                        {% endif %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        {{ form.cover_url.label(class="col-form-label") }}
+                        {% if form.cover_url.errors %}
+                            {{ form.cover_url(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.cover_url.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.cover_url(class="form-control", placeholder="Enter the cover link...") }}
+                        {% endif %}
+                    </div>
                 </fieldset>
                 <div class="form-group">
                     <button type="submit" class="btn btn-info btn-action">Add Book</button>

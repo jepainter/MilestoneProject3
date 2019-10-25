@@ -24,7 +24,7 @@
                                 {% endfor %}
                             </div>
                         {% else %}
-                            {{ form.review(class="form-control", rows="10", placeholder="Enter your review for the book...", value=review.review) }}
+                            {{ form.review(class="form-control", rows="10", placeholder=review.review) }}
                         {% endif %}
                     </div>
                 </fieldset>

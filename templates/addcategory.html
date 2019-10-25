@@ -13,33 +13,33 @@
             <form action="{{ url_for('add_category') }}" method="POST">
                 {{ form.hidden_tag() }}
                 <fieldset class="form-group">
-                <legend>Add a category to the site</legend>
-                <div class="form-group">
-                    {{ form.category_name.label(class="col-form-label") }}
-                    {% if form.category_name.errors %}
-                        {{ form.category_name(class="form-control is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.category_name.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.category_name(class="form-control", placeholder="Enter the name of the category...") }}
-                    {% endif %}
-                </div>
-                <div class="form-group">
-                    {{ form.cover_url.label(class="col-form-label") }}
-                    {% if form.cover_url.errors %}
-                        {{ form.cover_url(class="form-control is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.cover_url.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.cover_url(class="form-control", placeholder="Enter the cover link...") }}
-                    {% endif %}
-                </div>
+                    <legend>Add a category to the site</legend>
+                    <div class="form-group">
+                        {{ form.category_name.label(class="col-form-label") }}
+                        {% if form.category_name.errors %}
+                            {{ form.category_name(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.category_name.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.category_name(class="form-control", placeholder="Enter the name of the category...") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.cover_url.label(class="col-form-label") }}
+                        {% if form.cover_url.errors %}
+                            {{ form.cover_url(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.cover_url.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.cover_url(class="form-control", placeholder="Enter the cover link...") }}
+                        {% endif %}
+                    </div>
                 </fieldset>
                 <div class="form-group">
                     <button type="submit" class="btn btn-info btn-action">Add Category</button>
