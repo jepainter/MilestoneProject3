@@ -85,11 +85,11 @@ body:after {
 }
 
 .fnt-clr-red {
-    color: #ef302f;
+    color: rgba(239,48,47,1);
 }
 
 .fnt-clr-white {
-    color: #d0cbcb;
+    color: rgba(208,203,203,1);
 }
 
 .fnt-clr-black {
@@ -97,28 +97,27 @@ body:after {
 }
 
 .bg-clr-transparent{
-    background-color: #ffffff00;
+    background-color: rgba(255,255,255,0);
 }
 
 .bg-clr-darkest {
-    background-color: #000000a3;
+    background-color: rgba(0,0,0,0.64);
 }
 
 .bg-clr-dark-red {
-    background-color: #670707;
+    background-color: rgba(103,7,7,1);
 }
 
-
 .bg-clr-blue {
-    background-color: #074a67cf;
+    background-color: rgba(7,74,103,0.81);
 }
 
 .bg-clr-white-no-transition {
-    background-color: #ffffffc4;
+    background-color: rgba(255,255,255,0.77);
 }
 
 .bg-clr-white {
-    background-color: #ffffffc4;
+    background-color: rgba(255,255,255,0.77);
     transition: all 0.35s ease-in-out;
     -o-transition: all 0.35s ease-in-out;
     -moz-transition: all 0.35s ease-in-out;
@@ -126,12 +125,12 @@ body:after {
 }
 
 .bg-clr-white:hover {
-    background-color: #f5f5f5;
+    background-color: rgba(245,245,245,1);
 }
 
 
 .bg-clr-dark {
-    background-color: #00000036;
+    background-color: rgba(0,0,0,0.21);
     transition: all 0.35s ease-in-out;
     -o-transition: all 0.35s ease-in-out;
     -moz-transition: all 0.35s ease-in-out;
@@ -139,7 +138,7 @@ body:after {
 }
 
 .bg-clr-dark:hover {
-    background-color: #00000069;
+    background-color: rgba(0,0,0,0.41);
 }
 
 
@@ -217,7 +216,7 @@ img {
 
 .readme-link,
 .footer-links li a i {
-    color: #e45454;
+    color: rgba(228,84,84,1);
     font-size: 25px;
     text-align: center;
     padding: 0px;
@@ -251,7 +250,7 @@ img {
     
     .readme-link,
     .footer-links li a i {
-        color: #d0cbcb;
+        color: rgba(208,203,203,1);
         font-size: 25px;
         text-align: center;
         padding: 5px;
@@ -265,7 +264,7 @@ img {
     
     .readme-link:hover,
     .footer-links li a i:hover {
-        color: #e45454;
+        color: rgba(228,84,84,1);
     }
     
     .btn-action {
